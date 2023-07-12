@@ -1,0 +1,460 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>大模型LLM-微调经验分享&amp;总结-知乎-刘聪NLP | michealxie94</title><meta name="author" content="michealxie94"><meta name="copyright" content="michealxie94"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="转载本文转载于：知乎-刘聪NLP 写在前面大型语言模型横行，之前非常焦虑，现在全面拥抱。目前也有很多开源项目进行大模型微调等，笔者也做了一阵子大模型了，特此来介绍一下ChatGLM-6B模型微调经验，并汇总了一下目前开源项目&amp;数据。笔者与很多人微调结论不同，本人在采用单指令上进行模型微调，发现模型微调之后，「并没有出现灾难性遗忘现象」。 ChatGLM-6B模型微调(关系抽取)模型越大对显">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大模型LLM-微调经验分享&amp;总结-知乎-刘聪NLP">
+<meta property="og:url" content="https://michealxie94.github.io/post/nlp002.html">
+<meta property="og:site_name" content="michealxie94">
+<meta property="og:description" content="转载本文转载于：知乎-刘聪NLP 写在前面大型语言模型横行，之前非常焦虑，现在全面拥抱。目前也有很多开源项目进行大模型微调等，笔者也做了一阵子大模型了，特此来介绍一下ChatGLM-6B模型微调经验，并汇总了一下目前开源项目&amp;数据。笔者与很多人微调结论不同，本人在采用单指令上进行模型微调，发现模型微调之后，「并没有出现灾难性遗忘现象」。 ChatGLM-6B模型微调(关系抽取)模型越大对显">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://michealxie94.github.io/img/avatar.jpg">
+<meta property="article:published_time" content="2023-07-12T09:05:53.000Z">
+<meta property="article:modified_time" content="2023-07-12T10:36:35.185Z">
+<meta property="article:author" content="michealxie94">
+<meta property="article:tag" content="Chatgpt">
+<meta property="article:tag" content="p-tuning">
+<meta property="article:tag" content="p-tuningv2">
+<meta property="article:tag" content="loRA">
+<meta property="article:tag" content="DeepSpeed">
+<meta property="article:tag" content="Zero">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://michealxie94.github.io/img/avatar.jpg"><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="https://michealxie94.github.io/post/nlp002.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '大模型LLM-微调经验分享&总结-知乎-刘聪NLP',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-07-12 18:36:35'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (false) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/your_name.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="michealxie94"><span class="site-name">michealxie94</span></a></span><div id="he-plugin-simple"></div><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">大模型LLM-微调经验分享&amp;总结-知乎-刘聪NLP</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-07-12T09:05:53.000Z" title="发表于 2023-07-12 17:05:53">2023-07-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-07-12T10:36:35.185Z" title="更新于 2023-07-12 18:36:35">2023-07-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/NLP/">NLP</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>14分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="大模型LLM-微调经验分享&amp;总结-知乎-刘聪NLP"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="转载"><a href="#转载" class="headerlink" title="转载"></a><strong>转载</strong></h2><p>本文转载于：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/620885226">知乎-刘聪NLP</a></p>
+<h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a><strong>写在前面</strong></h2><p>大型语言模型横行，之前非常焦虑，现在全面拥抱。目前也有很多开源项目进行大模型微调等，笔者也做了一阵子大模型了，特此来介绍一下<code>ChatGLM-6B</code>模型微调经验，并汇总了一下目前开源项目&amp;数据。笔者与很多人微调结论不同，本人在采用单指令上进行模型微调，发现模型微调之后，<strong>「并没有出现灾难性遗忘现象」</strong>。</p>
+<h2 id="ChatGLM-6B模型微调-关系抽取"><a href="#ChatGLM-6B模型微调-关系抽取" class="headerlink" title="ChatGLM-6B模型微调(关系抽取)"></a><strong><code>ChatGLM-6B</code>模型微调(关系抽取)</strong></h2><p>模型越大对显卡的要求越高，目前主流对大模型进行微调方法有三种：<code>Freeze方法</code>、<code>P-Tuning方法</code>和<code>Lora</code>方法。笔者也通过这三种方法，在信息抽取任务上，对<code>ChatGLM-6B</code>大模型进行模型微调。为了防止大模型的数据泄露，采用一个领域比赛数据集-<a href="https://link.zhihu.com/?target=https%3A//www.datafountain.cn/competitions/584">汽车工业故障模式关系抽取</a>，随机抽取50条作为测试集。</p>
+<p>详细代码见上面的<code>GitHub</code>链接，并且也被<code>ChatGLM</code>官方收录。</p>
+<p><img src="https://pic4.zhimg.com/v2-f048824d8732efb7bc97b27996d88f03_b.jpg" alt></p>
+<h3 id="Freeze方法"><a href="#Freeze方法" class="headerlink" title="Freeze方法"></a><strong><code>Freeze方法</code></strong></h3><p><code>Freeze方法</code>，即参数冻结，对原始模型部分参数进行冻结操作，仅训练部分参数，以达到在单卡或不进行TP或PP操作，就可以对大模型进行训练。</p>
+<p>微调代码，见<code>finetuning_freeze.py</code>，核心部分如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> name, param <span class="keyword">in</span> model.named_parameters():</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">any</span>(nd <span class="keyword">in</span> name <span class="keyword">for</span> nd <span class="keyword">in</span> [<span class="string">&quot;layers.27&quot;</span>, \</span><br><span class="line">        <span class="string">&quot;layers.26&quot;</span>, <span class="string">&quot;layers.25&quot;</span>, <span class="string">&quot;layers.24&quot;</span>, <span class="string">&quot;layers.23&quot;</span>]):</span><br><span class="line">        param.requires_grad = <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+<p>针对模型不同层进行修改，可以自行修改。训练代码均采用<code>DeepSpeed</code>进行训练，可设置参数包含train_path、model_dir、num_train_epochs、train_batch_size、gradient_accumulation_steps、output_dir、prompt_text等，可根据自己的任务配置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CUDA_VISIBLE_DEVICES=0 DeepSpeed finetuning_freeze.py --num_train_epochs 5 </span><br><span class="line">    --train_batch_size 2</span><br></pre></td></tr></table></figure>
+<p>三元组抽取的推理代码，见<code>predict_freeze.py</code>，其他任务可以根据自己的评价标准进行推理预测。</p>
+<h3 id="P-Tuning方法"><a href="#P-Tuning方法" class="headerlink" title="P-Tuning方法"></a><strong>P-Tuning方法</strong></h3><p><code>P-Tuning方法</code>，参考<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/THUDM/&lt;code&gt;ChatGLM-6B&lt;/code&gt;/blob/main/ptuning/README.md">ChatGLM官方代码</a> ，是一种针对于大模型的<a href="#专有名词解释"><code>soft-prompt[1]</code></a>方法。</p>
+<p><img src="https://pic2.zhimg.com/v2-0906021c2338dfe9c60de250c3965a55_b.jpg" alt></p>
+<ul>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/abs/2103.10385"><code>P-Tuning</code></a>，仅对大模型的<code>Embedding</code>加入新的参数。</li>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/abs/2110.07602"><code>P-Tuning-V2</code></a>，将大模型的<code>Embedding</code>和每一层前都加上新的参数。</li>
+</ul>
+<p>微调代码，见<code>finetuning_pt.py<code>，核心部分如下：</code></code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">config = ChatGLMConfig.from_pretrained(args.model_dir)</span><br><span class="line">config.pre_seq_len = args.pre_seq_len</span><br><span class="line">config.prefix_projection = args.prefix_projection</span><br><span class="line"></span><br><span class="line">model = ChatGLMForConditionalGeneration.from_pretrained(args.model_dir, config=config)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> name, param <span class="keyword">in</span> model.named_parameters():</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">any</span>(nd <span class="keyword">in</span> name <span class="keyword">for</span> nd <span class="keyword">in</span> [<span class="string">&quot;prefix_encoder&quot;</span>]):</span><br><span class="line">        param.requires_grad = <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+<p>当prefix_projection为True 时，为<code>P-Tuning-V2</code>方法，在大模型的<code>Embedding</code>和每一层前都加上新的参数；<br>当prefix_projection为False时，为<code>P-Tuning</code>方法， 仅在大模型的<code>Embedding</code>上新的参数。</p>
+<p>可设置参数包含train_path、model_dir、num_train_epochs、train_batch_size、gradient_accumulation_steps、output_dir、prompt_text、pre_seq_len、prompt_text等， 可根据自己的任务配置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CUDA_VISIBLE_DEVICES=0 DeepSpeed finetuning_pt.py --num_train_epochs 5 </span><br><span class="line">     --train_batch_size 2 --pre_seq_len 16</span><br></pre></td></tr></table></figure>
+<p>三元组抽取的推理代码，见<code>predict_pt.py</code>，其他任务可以根据自己的评价标准进行推理预测。</p>
+<h3 id="Lora方法"><a href="#Lora方法" class="headerlink" title="Lora方法"></a><strong><code>Lora</code>方法</strong></h3><p><code>Lora</code>方法，即在大型语言模型上对指定参数增加额外的<code>低秩矩阵</code>，并在模型训练过程中，仅训练而外增加的参数。当“秩值”远小于原始参数维度时，新增的低秩矩阵参数量很小，达到仅训练很小的参数，就能获取较好的结果。</p>
+<p><img src="https://pic1.zhimg.com/v2-e9965e231005d772d5ea5a6d2351fe60_b.jpg" alt></p>
+<ul>
+<li><code>Lora</code>论文：<a href="https://link.zhihu.com/?target=https%3A//arxiv.org/abs/2106.09685">Paper</a></li>
+<li>官方代码：<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/microsoft/&lt;code&gt;Lora&lt;/code"><code>GitHub</code></a></li>
+<li>HuggingFace封装的peft库：<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/huggingface/peft"><code>GitHub</code></a></li>
+</ul>
+<p>微调代码，见<code>finetuning_Lora</code>.py，核心部分如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">model = ChatGLMForConditionalGeneration.from_pretrained(args.model_dir)</span><br><span class="line">config = LoraConfig(r=args.Lora_r,</span><br><span class="line">                    Lora_alpha=<span class="number">32</span>,</span><br><span class="line">                    target_modules=[<span class="string">&quot;query_key_value&quot;</span>],</span><br><span class="line">                    Lora_dropout=<span class="number">0.1</span>,</span><br><span class="line">                    bias=<span class="string">&quot;none&quot;</span>,</span><br><span class="line">                    task_type=<span class="string">&quot;CAUSAL_LM&quot;</span>,</span><br><span class="line">                    inference_mode=<span class="literal">False</span>,</span><br><span class="line">                    )</span><br><span class="line"></span><br><span class="line">model = get_peft_model(model, config)</span><br></pre></td></tr></table></figure>
+<p>可设置参数包含train_path、model_dir、num_train_epochs、train_batch_size、gradient_accumulation_steps、output_dir、prompt_text、Lora_r等，可根据自己的任务配置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CUDA_VISIBLE_DEVICES=0 DeepSpeed finetuning_Lora.py --num_train_epochs 5 </span><br><span class="line">    --train_batch_size 2 --Lora_r 8</span><br></pre></td></tr></table></figure>
+<p>三元组抽取的推理代码，见<code>predict_Lora.py</code>，其他任务可以根据自己的评价标准进行推理预测。</p>
+<p>注意：对于结果需要保持一致的任务(即关掉dropout，解码关掉do_sample)，需要保存模型的adapter_config.json文件中，inference_mode参数修改成false，并将模型执行model.eval()操作。 主要原因是chatglm模型代码中，没有采用Conv1D函数。</p>
+<h2 id="实验方法"><a href="#实验方法" class="headerlink" title="实验方法"></a><strong>实验方法</strong></h2><h3 id="三元组抽取"><a href="#三元组抽取" class="headerlink" title="三元组抽取"></a><strong>三元组抽取</strong></h3><ul>
+<li>模型训练时，最大长度为768，Batch大小为2，训练轮数为5，fp16训练，采用<code>DeepSpeed</code>的<a href="#专有名词解释"><code>Zero-1[2]</code></a>训练；</li>
+<li><code>P-Tuning V2</code>训练方法，<code>PT-Only-Embedding</code>表示仅对<code>Embedding</code>进行<code>soft-prompt</code>，<code>Freeze</code>仅训练模型后五层参数，<code>Lora</code>采用低秩矩阵方法训练，秩为<code>8</code>；</li>
+<li>由于之前训练PT在48G-A40显卡上会出现<a href="#专有名词解释"><code>OOM[3]</code></a>，因此之前进行PT实验时对模型开启了<a href="#专有名词解释"><code>gradient_checkpointing_enable[4]</code></a>，使得模型显存占用变小，但训练时长增加。</li>
+<li>训练示例：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">prompt_text：你现在是一个信息抽取模型，请你帮我抽取出关系内容为\&quot;性能故障\&quot;, </span><br><span class="line">             \&quot;部件故障\&quot;, \&quot;组成\&quot;和 \&quot;检测工具\&quot;的相关三元组，</span><br><span class="line">            三元组内部用\&quot;_\&quot;连接，三元组之间用\\n分割。文本：</span><br><span class="line">输入：故障现象：发动机水温高，风扇始终是低速转动，高速档不工作，开空调尤其如此。</span><br><span class="line">输出：发动机_部件故障_水温高\n风扇_部件故障_低速转动</span><br></pre></td></tr></table></figure>
+<p>时间换空间，可用很好的解决显卡的资源问题，简单玩玩还可以，如果想要模型达到最优效果或可用快速看到效果，还不如租张A100卡，快速实验，推理阶段再用自己的小破卡。</p>
+<p>下面实验结果均是在租的80G-A100上进行的实验，与<code>GitHub</code>里用的A40的实验结果会有些差异，主要在训练时长(纯训练速度，剔除模型保存的时间)。说实话，真的要训练一个大模型，多个A100是必不可少的，可以减少很多模型并行的操作，效果上也更好把控一些。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">微调方法</th>
+<th style="text-align:center"><code>PT-Only-Embedding</code></th>
+<th style="text-align:center"><code>P-Tuning V2</code></th>
+<th style="text-align:center"><code>Freeze</code></th>
+<th style="text-align:center"><code>Lora</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">显卡占用</td>
+<td style="text-align:center">37G</td>
+<td style="text-align:center">56G</td>
+<td style="text-align:center">24G</td>
+<td style="text-align:center">39G</td>
+</tr>
+<tr>
+<td style="text-align:center">总参数</td>
+<td style="text-align:center">6.259B</td>
+<td style="text-align:center">7.211B</td>
+<td style="text-align:center">6.255B</td>
+<td style="text-align:center">6.259B</td>
+</tr>
+<tr>
+<td style="text-align:center">可训练参数占比</td>
+<td style="text-align:center">0.0586%</td>
+<td style="text-align:center">13.26%</td>
+<td style="text-align:center">16.10%</td>
+<td style="text-align:center">0.0586%</td>
+</tr>
+<tr>
+<td style="text-align:center">训练耗时</td>
+<td style="text-align:center">20min</td>
+<td style="text-align:center">52min</td>
+<td style="text-align:center">46min</td>
+<td style="text-align:center">25min</td>
+</tr>
+<tr>
+<td style="text-align:center">测试结果F1</td>
+<td style="text-align:center">0.0</td>
+<td style="text-align:center">0.6283</td>
+<td style="text-align:center">0.5675</td>
+<td style="text-align:center">0.5359</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>结果分析：</p>
+<ul>
+<li>效果为<code>P-Tuning V2</code> &gt; <code>Freeze</code> &gt; <code>Lora</code> &gt; <code>PT-Only-Embedding</code>;</li>
+<li>速度为<code>PT-Only-Embedding</code> &gt; <code>Lora</code> &gt; <code>Freeze</code> &gt; <code>P-Tuning V2</code>;</li>
+<li><strong><code>PT-Only-Embedding</code>效果很不理想，发现在训练时，最后的<code>loss</code>仅能收敛到2.几，而其他机制可以收敛到0.几。分析原因为，输出内容形式与原有语言模型任务相差很大，仅增加额外<code>Embedding</code>参数，不足以改变复杂的下游任务</strong>;</li>
+<li><code>P-Tuning V2</code>方法占用显存更大，因为也增加了很多而外参数;</li>
+<li>测试耗时，采用float16进行模型推理，由于其他方法均增加了额外参数，因此其他方法的推理耗时会比<code>Freeze方法</code>要高。当然由于是生成模型，所以生成的长度也会影响耗时;</li>
+<li>模型在指定任务上微调之后，并没有丧失原有能力，例如生成“帮我写个快排算法”，依然可以生成-快排代码;</li>
+<li><strong>由于大模型微调都采用大量<code>instruction</code>进行模型训练，仅采用单一的指令进行微调时，对原来其他的指令影响不大，因此并没导致原来模型的能力丧失</strong>;</li>
+<li>上面测试仅代表个人测试结果。</li>
+</ul>
+<p>很多同学在微调后出现了灾难性遗忘现象，但我这边并没有出现，对“翻译任务”、“代码任务”、“问答任务”进行测试，采用freeze模型，可以用test_forgetting.py进行测试，具体测试效果如下：</p>
+<ul>
+<li>翻译任务</li>
+</ul>
+<p><img src="https://pic2.zhimg.com/v2-6d4d29a974c10411a915b51fb226e919_b.png" alt></p>
+<ul>
+<li>代码任务</li>
+</ul>
+<p><img src="https://pic4.zhimg.com/v2-bd9a3e20503f83d7f57b5dabf98fef43_b.jpg" alt></p>
+<ul>
+<li>问答任务</li>
+</ul>
+<p><img src="https://pic4.zhimg.com/v2-b0901617f0084a1bffdeeb1961fc05d3_b.png" alt></p>
+<p>后面会把生成任务、分类任务做完，请持续关注<code>GitHub</code>，会定期更新。（太忙了，会抓紧时间更新，并且官方代码也在持续更新，如遇到代码代码调不通的情况，请及时联系我，我在<code>GitHub</code>也给出了我的代码版本和模型版本）</p>
+<h3 id="文本生成"><a href="#文本生成" class="headerlink" title="文本生成"></a><strong>文本生成</strong></h3><ul>
+<li>为了防止大模型的数据泄露，采用一个“万创杯”中医药天池大数据竞赛-<a href="https://link.zhihu.com/?target=https%3A//tianchi.aliyun.com/competition/entrance/531826/introduction">中医文献问题生成挑战</a>，随机抽取20条作为测试集</li>
+<li>PT为官方的<code>P-Tuning V2</code>训练方法，<code>PT-Only-Embedding</code>表示仅对<code>Embedding</code>进行<code>soft-prompt</code>，<code>Freeze</code>仅训练模型后五层参数，<code>Lora</code>采用低秩矩阵方法训练，秩为<code>8</code>；</li>
+<li>训练示例：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">prompt_text：你现在是一个问题生成模型，请根据下面文档生成一个问题，文档：</span><br><span class="line">输入：紫色红薯是近年从日本引进的新品种红薯，中国农业大学农学与生物技术学院副院长刘庆昌指出，</span><br><span class="line">      紫薯中的花青素具有显著的抗生物氧化作用，在延缓人体衰老方面具有非常好的效果。</span><br><span class="line">      紫薯中所含赖氨酸、铜、锰、钾、锌的含量高于一般红薯5-8倍，尤其是抗癌物质碘、</span><br><span class="line">      硒的含量比其他红薯高出20倍以上，占食物中的第一位。</span><br><span class="line">输出：紫薯和红薯吃哪个好？</span><br></pre></td></tr></table></figure>
+<p>模型训练，以<code>Freeze方法</code>为例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CUDA_VISIBLE_DEVICES=0 <span class="built_in">nohup</span> DeepSpeed --master_port 5555 finetuning_freeze.py </span><br><span class="line">        --train_path <span class="string">&quot;data/d2q_0.json&quot;</span> </span><br><span class="line">        --output_dir <span class="string">&quot;output_dir_freeze/&quot;</span> </span><br><span class="line">        --prompt_text <span class="string">&quot;你现在是一个问题生成模型，请根据下面文档生成一个问题，文档：&quot;</span> </span><br><span class="line">        &gt; log_fz.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+<p>由于生成模型的内容不能想信息抽取任务一样评价，用现有的BLUE或者Rouge来评价也是不合适，因此制定了评分规则。 通过多样性和准确性两个角度判断D2Q模型好坏，每个样本总计5分，共20个样本。</p>
+<ul>
+<li><p>多样性：</p>
+</li>
+<li><p>问题是否高度相似，每重复一个问题扣0.25分；</p>
+</li>
+<li><p>问题对应答案是否相同，每有一个重复答案或找不到答案，扣0.25分；</p>
+</li>
+<li><p>准确性：</p>
+</li>
+<li><p>问题能否从文档中找到答案，每有一个找不到答案，扣0.25分；</p>
+</li>
+<li>问题内容是否流畅，每有一个问题不流畅，扣0.25分；</li>
+<li>问题内容是否有害，每有一个有害，扣0.25分；</li>
+</ul>
+<p>测试数据见d2q_result_data/，测试代码见predict_d2q.py</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">微调方法</th>
+<th style="text-align:center">原始模型</th>
+<th style="text-align:center"><code>PT-Only-Embedding</code></th>
+<th style="text-align:center"><code>P-Tuning V2</code></th>
+<th style="text-align:center"><code>Freeze</code></th>
+<th style="text-align:center"><code>Lora</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">分数</td>
+<td style="text-align:center">51.75</td>
+<td style="text-align:center">73.75</td>
+<td style="text-align:center">87.75</td>
+<td style="text-align:center">79.25</td>
+<td style="text-align:center">86.75</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="中文开源大模型-amp-项目"><a href="#中文开源大模型-amp-项目" class="headerlink" title="中文开源大模型&amp;项目"></a><strong>中文开源大模型&amp;项目</strong></h2><p>虽然出来很多大模型，但Open的&amp;中文可直接使用的并不多，下面对中文开源大模型、数据集和项目进行一下汇总。</p>
+<p><img src="https://pic2.zhimg.com/v2-3422e1fd8f182d35418d30216a079905_b.jpg" alt></p>
+<h3 id="中文开源大模型"><a href="#中文开源大模型" class="headerlink" title="中文开源大模型"></a><strong>中文开源大模型</strong></h3><p>直接可微调，<code>无需指令增量训练</code>：</p>
+<ul>
+<li><code>ChatGLM-6B</code>：<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/THUDM/&lt;code&gt;ChatGLM-6B&lt;/code">模型地址</a></li>
+<li><code>ChatYuan-large-v2</code>：<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/ClueAI/ChatYuan-large-v2">模型地址</a></li>
+</ul>
+<p>原始模型多语言or英文，<code>需要中文指令数据集+增量训练</code>：</p>
+<ul>
+<li><code>BloomZ</code>：<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/bigscience/bloomz">模型地址</a></li>
+<li><code>LLama</code>：<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/facebookresearch/llama">模型地址</a></li>
+<li><code>Flan-T5</code>：<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/google/flan-t5-xxl">模型地址</a></li>
+<li><code>OPT</code>：<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/facebook/opt-66b">模型地址</a></li>
+</ul>
+<h3 id="中文开源指令数据"><a href="#中文开源指令数据" class="headerlink" title="中文开源指令数据"></a><strong>中文开源指令数据</strong></h3><p>下面中文指令集，大多数从Alpaca翻译而来，请看下面项目中data目录。目前通过ChatGPT或者GPT4作为廉价标注工为自己的数据进行数据标注一个不错的思路。</p>
+<ul>
+<li>[1]：<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/LC1332/Chinese-alpaca-&lt;code&gt;Lora&lt;/code">数据地址</a></li>
+<li>[2]：<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/hikariming/alpaca_chinese_dataset">数据地址</a></li>
+<li>[3]：<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/carbonz0/alpaca-chinese-dataset">数据地址</a></li>
+<li>[4]：<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/Instruction-Tuning-with-GPT-4/GPT-4-LLM">数据地址</a></li>
+<li>[5]：<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/LianjiaTech/BELLE">数据地址</a></li>
+<li>[6]：<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/datasets/JosephusCheung/GuanacoDataset">数据地址</a></li>
+</ul>
+<h3 id="开源项目"><a href="#开源项目" class="headerlink" title="开源项目"></a><strong>开源项目</strong></h3><p>总结下面较火的开源项目：</p>
+<ul>
+<li><code>BELLE</code>：<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/LianjiaTech/BELLE">项目地址</a></li>
+<li><code>ChatGLM</code>：<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/THUDM/&lt;code&gt;ChatGLM-6B&lt;/code">项目地址</a></li>
+<li><code>Luotuo-Chinese-LLM</code>：<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/LC1332/Luotuo-Chinese-LLM">项目地址</a></li>
+<li><code>stanford_alpaca</code>：<a href="https://link.zhihu.com/?target=https%3A//&lt;code&gt;GitHub&lt;/code&gt;.com/tatsu-lab/stanford_alpaca">项目地址</a></li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h2><p>目前各大厂的大模型陆陆续续放出，堪称百家争鸣！个人玩家也是全面拥抱，想尽一切办法来训练微调大模型。只愿大家以后可以实现“大模型”自由。愿再无“model-as-a-service”。</p>
+<h2 id="专有名词解释"><a href="#专有名词解释" class="headerlink" title="专有名词解释"></a><strong>专有名词解释</strong></h2><h3 id="soft-prompt方法"><a href="#soft-prompt方法" class="headerlink" title="soft-prompt方法"></a><code>soft-prompt方法</code></h3><p>是一种用于生成文本的技术。在自然语言处理中，生成文本是指根据给定的输入生成相关的文本输出。<code>soft-prompt</code>方法是一种生成文本的方法，它使用给定的软提示（soft prompt）来指导生成的文本。<br>软提示是一种对生成文本的要求或指导。它可以是一个短语、一个问题或一个主题。软提示提供了一定的上下文，帮助模型理解要生成的文本应该具有的特定特征或内容。通过提供软提示，可以引导模型生成与提示相关的文本。<br><code>soft-prompt</code>方法可以应用于各种生成文本的任务，如机器翻译、文本摘要、对话系统等。它可以提高生成文本的质量和相关性，使得生成的文本更符合预期的要求。<br>软提示方法与传统的生成文本方法相比，具有更大的灵活性和可控性。通过调整软提示的内容和形式，可以对生成的文本进行更精确的控制，使其满足特定的需求或要求。这使得软提示方法成为生成文本领域中的一种重要技术。</p>
+<h3 id="DeepSpeed的Zero-1"><a href="#DeepSpeed的Zero-1" class="headerlink" title="DeepSpeed的Zero-1"></a><code>DeepSpeed的Zero-1</code></h3><p><code>DeepSpeed</code>的<code>Zero-1</code>是一个优化训练大型模型的技术。<code>DeepSpeed</code>是一个开源的深度学习优化库，可以显著提高训练速度和模型规模。<code>Zero-1</code>是<code>DeepSpeed</code>中的一种优化技术，专门用于减少模型参数的内存占用和通信开销。<br><code>Zero-1通过将模型参数分成多个小块，只在每个小块上进行计算和通信，从而减少了每次计算和通信的数据量。</code>这种方式可以有效地降低模型参数的内存占用和通信开销，特别适用于训练大型模型。<br>通过使用<code>Zero-1</code>，<code>DeepSpeed</code>可以在<code>不增加额外计算和通信开销的情况下，将模型规模扩展到更大的尺寸</code>。这对于训练更复杂的模型和处理更大规模的数据集非常有帮助。同时，<code>Zero-1</code>还可以提高训练速度，因为减少了每次计算和通信的数据量，从而减少了训练的总体时间。<br>总之，<code>DeepSpeed</code>的<code>Zero-1</code>是一种优化技术，通过减少模型参数的内存占用和通信开销，可以提高训练大型模型的效率和速度。</p>
+<h3 id="出现OOM的原因和解决方法"><a href="#出现OOM的原因和解决方法" class="headerlink" title="出现OOM的原因和解决方法"></a><code>出现OOM的原因和解决方法</code></h3><p><code>OOM</code>是<code>Out of Memory</code>的缩写，指的是内存不足。在深度学习训练中，<code>OOM</code>通常是由以下原因引起的：</p>
+<ol>
+<li>模型复杂度高：深度学习模型通常包含大量的参数和层，需要大量的内存来存储模型的权重和中间计算结果。如果模型过于复杂，超出了可用内存的限制，就会出现OOM。</li>
+<li>批量大小过大：在深度学习训练中，通常会将训练数据划分为小批量进行处理。每个批量的数据会被同时输入到模型中进行计算，因此批量大小会直接影响内存的使用。如果批量大小设置过大，超出了可用内存的限制，就会出现OOM。</li>
+<li>图像分辨率过高：在图像处理任务中，高分辨率的图像会占用更多的内存。如果输入的图像分辨率过高，超出了可用内存的限制，就会出现OOM。</li>
+<li>内存泄漏：内存泄漏是指程序在运行过程中无法释放已经分配的内存，导致内存占用不断增加。如果深度学习训练过程中存在内存泄漏问题，最终会导致内存不足而出现OOM。</li>
+</ol>
+<p>为解决<code>OOM</code>问题，可以采取以下措施：</p>
+<ol>
+<li>减小模型复杂度：可以尝试减少模型的参数量或层数，以降低内存需求。</li>
+<li>减小批量大小：可以尝试减小每个批量的数据量，以降低内存需求。但需要注意，较小的批量大小可能会影响训练的效果。</li>
+<li>降低图像分辨率：可以尝试将输入图像的分辨率降低，以减少内存占用。</li>
+<li>检查和修复内存泄漏问题：可以通过代码审查和内存分析工具来检查是否存在内存泄漏问题，并进行修复。</li>
+<li>使用更大的内存或分布式训练：如果以上措施无法解决OOM问题，可以考虑增加可用内存的限制，例如使用更大内存的计算设备或采用分布式训练的方式。</li>
+</ol>
+<h3 id="gradient-checkpointing-enable梯度检查点技术"><a href="#gradient-checkpointing-enable梯度检查点技术" class="headerlink" title="gradient_checkpointing_enable梯度检查点技术"></a><code>gradient_checkpointing_enable梯度检查点技术</code></h3><p>是一个参数或选项，用于启用梯度检查点技术。梯度检查点技术是一种优化方法，用于<code>减少计算图中的内存消耗</code>，特别适用于深度学习模型中的大型计算图。<br>在训练过程中，计算图中的每个操作都会保存其梯度信息，以便在反向传播时使用。然而，对于具有大量参数和层的模型，这些梯度信息可能会占用大量内存。<br>梯度检查点技术通过在<code>计算图中的某些操作处保存中间状态，而不是保存所有操作的梯度信息</code>，来减少内存消耗。<br>这样，在反向传播过程中，只需要重新计算<code>从检查点开始的操作的梯度，而不是重复计算整个计算图的梯度。</code><br>通过启用<code>gradient_checkpointing_enable</code>，可以在训练过程中使用梯度检查点技术来减少内存消耗。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://michealxie94.github.io">michealxie94</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://michealxie94.github.io/post/nlp002.html">https://michealxie94.github.io/post/nlp002.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://michealxie94.github.io" target="_blank">michealxie94</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Chatgpt/">Chatgpt</a><a class="post-meta__tags" href="/tags/p-tuning/">p-tuning</a><a class="post-meta__tags" href="/tags/p-tuningv2/">p-tuningv2</a><a class="post-meta__tags" href="/tags/loRA/">loRA</a><a class="post-meta__tags" href="/tags/DeepSpeed/">DeepSpeed</a><a class="post-meta__tags" href="/tags/Zero/">Zero</a></div><div class="post_share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="wechat,weibo,qq,qzone,douban,facebook,twitter"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/post/LC15.html" title="LC15. 三数之和"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">LC15. 三数之和</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/post/d944609a.html" title="阿里云搭建langchain-ChatGLM知识库问答-环境搭建"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-29</div><div class="title">阿里云搭建langchain-ChatGLM知识库问答-环境搭建</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">michealxie94</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/michealxie94"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/michealxie94" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:michealxie94@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_30138291" target="_blank" title="Csdn"><i class="fas fa-light fa-circle-nodes" style="color: #fc3c39;"></i></a><a class="social-icon" href="https://leetcode.cn/u/peaceful-bohrsgr/" target="_blank" title="Leetcode"><i class="fas fa-light fa-cube" style="color: #ffa116;"></i></a><a class="social-icon" href="https://www.zhihu.com/" target="_blank" title="Zhihu"><i class="fab fa-zhihu" style="color: #0c5fed;"></i></a><a class="social-icon" href="https://www.bilibili.com/" target="_blank" title="Bilibili"><i class="fab fa-bilibili" style="color: #40b7df;"></i></a><a class="social-icon" href="https://developer.aliyun.com/bigdata/" target="_blank" title="AliCloud"><i class="fa-solid fa-cloud" style="color: #ff7a1b;"></i></a><a class="social-icon" href="https://www.overleaf.com/project" target="_blank" title="OverLeaf"><i class="fa-solid fa-leaf fa-fade" style="color: #138a07;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">2023 不负韶华 ！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AC%E8%BD%BD"><span class="toc-number">1.</span> <span class="toc-text">转载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%99%E5%9C%A8%E5%89%8D%E9%9D%A2"><span class="toc-number">2.</span> <span class="toc-text">写在前面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ChatGLM-6B%E6%A8%A1%E5%9E%8B%E5%BE%AE%E8%B0%83-%E5%85%B3%E7%B3%BB%E6%8A%BD%E5%8F%96"><span class="toc-number">3.</span> <span class="toc-text">ChatGLM-6B模型微调(关系抽取)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Freeze%E6%96%B9%E6%B3%95"><span class="toc-number">3.1.</span> <span class="toc-text">Freeze方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#P-Tuning%E6%96%B9%E6%B3%95"><span class="toc-number">3.2.</span> <span class="toc-text">P-Tuning方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Lora%E6%96%B9%E6%B3%95"><span class="toc-number">3.3.</span> <span class="toc-text">Lora方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E6%96%B9%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">实验方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E5%85%83%E7%BB%84%E6%8A%BD%E5%8F%96"><span class="toc-number">4.1.</span> <span class="toc-text">三元组抽取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E6%9C%AC%E7%94%9F%E6%88%90"><span class="toc-number">4.2.</span> <span class="toc-text">文本生成</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%AD%E6%96%87%E5%BC%80%E6%BA%90%E5%A4%A7%E6%A8%A1%E5%9E%8B-amp-%E9%A1%B9%E7%9B%AE"><span class="toc-number">5.</span> <span class="toc-text">中文开源大模型&amp;项目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E6%96%87%E5%BC%80%E6%BA%90%E5%A4%A7%E6%A8%A1%E5%9E%8B"><span class="toc-number">5.1.</span> <span class="toc-text">中文开源大模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%AD%E6%96%87%E5%BC%80%E6%BA%90%E6%8C%87%E4%BB%A4%E6%95%B0%E6%8D%AE"><span class="toc-number">5.2.</span> <span class="toc-text">中文开源指令数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE"><span class="toc-number">5.3.</span> <span class="toc-text">开源项目</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%93%E6%9C%89%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A"><span class="toc-number">7.</span> <span class="toc-text">专有名词解释</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#soft-prompt%E6%96%B9%E6%B3%95"><span class="toc-number">7.1.</span> <span class="toc-text">soft-prompt方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DeepSpeed%E7%9A%84Zero-1"><span class="toc-number">7.2.</span> <span class="toc-text">DeepSpeed的Zero-1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BA%E7%8E%B0OOM%E7%9A%84%E5%8E%9F%E5%9B%A0%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="toc-number">7.3.</span> <span class="toc-text">出现OOM的原因和解决方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gradient-checkpointing-enable%E6%A2%AF%E5%BA%A6%E6%A3%80%E6%9F%A5%E7%82%B9%E6%8A%80%E6%9C%AF"><span class="toc-number">7.4.</span> <span class="toc-text">gradient_checkpointing_enable梯度检查点技术</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/nlp002.html" title="大模型LLM-微调经验分享&amp;总结-知乎-刘聪NLP">大模型LLM-微调经验分享&amp;总结-知乎-刘聪NLP</a><time datetime="2023-07-12T09:05:53.000Z" title="发表于 2023-07-12 17:05:53">2023-07-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LC15.html" title="LC15. 三数之和">LC15. 三数之和</a><time datetime="2023-07-09T15:47:07.000Z" title="发表于 2023-07-09 23:47:07">2023-07-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LC2178.html" title="LC2178. 拆分成最多数目的正偶数之和">LC2178. 拆分成最多数目的正偶数之和</a><time datetime="2023-07-06T02:58:43.000Z" title="发表于 2023-07-06 10:58:43">2023-07-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LeetCodeContest.html" title="LeetCode周赛打卡记录">LeetCode周赛打卡记录</a><time datetime="2023-07-06T00:37:06.000Z" title="发表于 2023-07-06 08:37:06">2023-07-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/e5341844.html" title="Hexo Butterfly搭建过程和解决方案">Hexo Butterfly搭建过程和解决方案</a><time datetime="2023-07-05T15:03:46.000Z" title="发表于 2023-07-05 23:03:46">2023-07-05</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By michealxie94</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(()=>{
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://michealxie94.zeabur.app/',
+      region: '',
+      onCommentLoaded: function () {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://michealxie94.zeabur.app/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      countELement.textContent = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const runFn = () => {
+    init()
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') {
+      setTimeout(runFn,0)
+      return
+    } 
+    getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script><script src="/js/weather.js"></script><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
