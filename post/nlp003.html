@@ -1,0 +1,562 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>003【LLM】从零开始训练大模型-知乎-何枝 | michealxie94</title><meta name="author" content="michealxie94"><meta name="copyright" content="michealxie94"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="转载本文转载于：知乎-何枝  在这篇文章中，我们将尽可能详细地梳理一个完整的 LLM 训练流程。包括模型预训练（Pretrain）、Tokenizer 训练、指令微调（Instruction Tuning）、奖励模型（Reward Model）和强化学习（RLHF）等环节。由于内容比较多，我们将逐步整理并完善这个文档。  1. 预训练阶段（Pretraining Stage） 工欲善其事，必先利其">
+<meta property="og:type" content="article">
+<meta property="og:title" content="003【LLM】从零开始训练大模型-知乎-何枝">
+<meta property="og:url" content="https://michealxie94.github.io/post/nlp003.html">
+<meta property="og:site_name" content="michealxie94">
+<meta property="og:description" content="转载本文转载于：知乎-何枝  在这篇文章中，我们将尽可能详细地梳理一个完整的 LLM 训练流程。包括模型预训练（Pretrain）、Tokenizer 训练、指令微调（Instruction Tuning）、奖励模型（Reward Model）和强化学习（RLHF）等环节。由于内容比较多，我们将逐步整理并完善这个文档。  1. 预训练阶段（Pretraining Stage） 工欲善其事，必先利其">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://michealxie94.github.io/img/avatar.jpg">
+<meta property="article:published_time" content="2023-07-12T17:36:06.000Z">
+<meta property="article:modified_time" content="2023-07-12T17:38:03.508Z">
+<meta property="article:author" content="michealxie94">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://michealxie94.github.io/img/avatar.jpg"><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="https://michealxie94.github.io/post/nlp003.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '003【LLM】从零开始训练大模型-知乎-何枝',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-07-13 01:38:03'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (false) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/your_name.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="michealxie94"><span class="site-name">michealxie94</span></a></span><div id="he-plugin-simple"></div><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">003【LLM】从零开始训练大模型-知乎-何枝</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-07-12T17:36:06.000Z" title="发表于 2023-07-13 01:36:06">2023-07-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-07-12T17:38:03.508Z" title="更新于 2023-07-13 01:38:03">2023-07-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/NLP/">NLP</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">6.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>20分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="003【LLM】从零开始训练大模型-知乎-何枝"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="转载"><a href="#转载" class="headerlink" title="转载"></a><strong>转载</strong></h2><p>本文转载于：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/636270877">知乎-何枝</a></p>
+<blockquote>
+<p>在这篇文章中，我们将尽可能详细地梳理一个完整的 LLM 训练流程。包括模型预训练（Pretrain）、Tokenizer 训练、指令微调（Instruction Tuning）、奖励模型（Reward Model）和强化学习（RLHF）等环节。由于内容比较多，我们将逐步整理并完善这个文档。</p>
+</blockquote>
+<h2 id="1-预训练阶段（Pretraining-Stage）"><a href="#1-预训练阶段（Pretraining-Stage）" class="headerlink" title="1. 预训练阶段（Pretraining Stage）"></a>1. 预训练阶段（Pretraining Stage）</h2><blockquote>
+<p>工欲善其事，必先利其器。</p>
+</blockquote>
+<p>当前，不少工作选择在一个较强的基座模型上进行微调，且通常效果不错（如：[<a href="https://link.zhihu.com/?target=https%3A//github.com/tatsu-lab/stanford_alpaca">alpaca</a>]、[<a href="https://link.zhihu.com/?target=https%3A//lmsys.org/blog/2023-03-30-vicuna/">vicuna</a>] 等）。</p>
+<p>这种成功的前提在于：预训练模型和下游任务的差距不大，预训练模型中通常已经包含微调任务中所需要的知识。</p>
+<p>但在实际情况中，我们通常会遇到一些问题，使得我们无法直接使用一些开源 backbone：</p>
+<ol>
+<li><strong>语言不匹配：</strong>大多数开源基座对中文的支持都不太友好，例如：[<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/decapoda-research/llama-7b-hf">Llama</a>]、[<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/mosaicml/mpt-7b">mpt</a>]、[<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/tiiuae/falcon-7b">falcon</a>] 等，这些模型在英文上效果都很优秀，但在中文上却差强人意。</li>
+</ol>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>续写任务测试</th>
+<th>LLaMA</th>
+<th>MPT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>杭州西湖是</td>
+<td>杭州西湖是杭州的一个静静的一个游泳池，游泳池是杭州西湖的一个游泳池，游泳池是杭州西湖的一个游泳池，游泳池是杭州西湖的一个游泳池，�</td>
+<td>杭州西湖是中国最大的湖泊，是中国最大的湖泊，是中国最大的湖泊，是中国最大的湖泊，是中国最大的湖泊，是中国最大的湖泊，是中国最大的湖泊，</td>
+</tr>
+<tr>
+<td>琅琊榜的导演是</td>
+<td>琅琊榜的导演是很多的人都不知道，因为他的父亲是一位杰作家，他的父亲的杰作家是一位杰作家，</td>
+<td>琅琊榜的导演是谁？Who are the directors of the Rolling Stone?琅琊榜的导演是谁？Who are the</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ol>
+<li><strong>专业知识不足：</strong>当我们需要一个专业领域的 LLM 时，预训练模型中的知识就尤为重要。由于大多数预训练模型都是在通用训练语料上进行学习，对于一些特殊领域（金融、法律等）中的概念和名词无法具备很好的理解。我们通常需要在训练语料中加入一些领域数据（如：[<a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2305.12002.pdf">xuanyuan 2.0</a>]），以帮助模型在指定领域内获得更好的效果。</li>
+</ol>
+<p><img src="https://pic3.zhimg.com/v2-3d5561661832b05a7f0fe52055ba7ea2_b.jpg" alt></p>
+<p>基于上述原因，我们在进行 SFT 步骤之前，先来看看预训练任务是如何做的。</p>
+<h3 id="1-1-Tokenizer-Training"><a href="#1-1-Tokenizer-Training" class="headerlink" title="1.1 Tokenizer Training"></a>1.1 Tokenizer Training</h3><p>在进行预训练之前，我们需要先选择一个预训练的模型基座。</p>
+<p>一个较为普遍的问题是：大部分优秀的语言模型都没有进行充分的中文预训练，</p>
+<p>因此，许多工作都尝试将在英语上表现比较优秀的模型用中文语料进行二次预训练，期望其能够将英语上的优秀能力迁移到中文任务中来。</p>
+<blockquote>
+<p>已经有许多优秀的仓库做过这件事情，比如：[<a href="https://link.zhihu.com/?target=https%3A//github.com/ymcui/Chinese-LLaMA-Alpaca">Chinese-LLaMA-Alpaca</a>]。</p>
+</blockquote>
+<p>但在进行正式的训练之前，我们还有一步很重要的事情去做：词表扩充。</p>
+<p>通俗来讲，tokenizer 的目的就是将一句话进行切词，并将切好词的列表喂给模型进行训练。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入句子 &gt;&gt;&gt; 你好世界</span><br><span class="line">切词结果 &gt;&gt;&gt; [&#x27;你&#x27;, &#x27;好&#x27;, &#x27;世&#x27;, &#x27;界&#x27;]</span><br></pre></td></tr></table></figure>
+<p>通常，tokenizer 有 2 种常用形式：WordPiece 和 BPE。</p>
+<ul>
+<li><strong>WordPiece</strong></li>
+</ul>
+<p>WordPiece 很好理解，就是将所有的「常用字」和「常用词」都存到词表中，</p>
+<p>当需要切词的时候就从词表里面查找即可。</p>
+<p><img src="https://pic1.zhimg.com/v2-819c6c3e9b4c10c88e06eee58a11ebf8_b.jpg" alt></p>
+<blockquote>
+<p>上述图片来自可视化工具 [<a href="https://link.zhihu.com/?target=https%3A//github.com/HarderThenHarder/transformers_tasks/blob/main/tools/tokenizer_viewer/readme.md">tokenizer_viewer</a>]。</p>
+</blockquote>
+<p>如上图所示，大名鼎鼎的 BERT 就使用的这种切词法。</p>
+<p>当我们输入句子：你好世界，</p>
+<p>BERT 就会依次查找词表中对应的字，并将句子切成词的组合。</p>
+<p><img src="https://pic3.zhimg.com/v2-daa04afee73491b2465f0c29149dcffa_b.jpg" alt></p>
+<p>当遇到词表中不存在的字词时，tokenizer 会将其标记为特殊的字符 [UNK]：</p>
+<p><img src="https://pic1.zhimg.com/v2-4a79c57436e4c5ec4b5525b9fd547e7c_b.jpg" alt></p>
+<ul>
+<li><strong>Byte Pair Encoder（BPE）</strong></li>
+</ul>
+<p>WordPiece 的方式很有效，但当字词数目过于庞大时这个方式就有点难以实现了。</p>
+<p>对于一些多语言模型来讲，要想穷举所有语言中的常用词（穷举不全会造成 OOV），</p>
+<p>既费人力又费词表大小，为此，人们引入另一种方法：BPE。</p>
+<p>BPE 不是按照中文字词为最小单位，而是按照 unicode 编码 作为最小粒度。</p>
+<p>对于中文来讲，一个汉字是由 3 个 unicode 编码组成的，</p>
+<p>因为平时我们不会拆开来看（毕竟中文汉字是不可拆分的），所以我一开始对这个概念也不太熟悉。</p>
+<p>我们来看看 LLaMA 的 tokenizer（BPE）对中文是如何进行 encode 的：</p>
+<p><img src="https://pic2.zhimg.com/v2-4cd433a354233d03bc2aad15745a7285_b.jpg" alt></p>
+<blockquote>
+<p>上述图片来自可视化工具 [<a href="https://link.zhihu.com/?target=https%3A//github.com/HarderThenHarder/transformers_tasks/blob/main/tools/tokenizer_viewer/readme.md">tokenizer_viewer</a>]。</p>
+</blockquote>
+<p>可以看到，「编码」两个字能够被正常切成 2 个字，</p>
+<p>但「待」却被切成了 3 个 token，这里的每个 token 就是 1 个 unicode 编码。</p>
+<p><img src="https://pic1.zhimg.com/v2-66a59222fb083b240eac861eb026c73c_b.jpg" alt></p>
+<p>通过 token 查找功能，我们可以发现「编」「码」在词表中，但「待」不在词表中。</p>
+<p>但任何 1 个汉字都是可以由 unicode 表示（只是组合顺序不同），因此「待」就被切成了 3 个 token。</p>
+<table data-draft-node="block" data-draft-type="table" data-size="normal" data-row-style="normal"><tbody><tr><td>BPE 的优势</td><td>不会出现 OOV 的情况。不管是怎样的汉字，只要可以用 unicode 表示，就都会存在于词表中。</td></tr><tr><td>BPE 的劣势</td><td>模型训练起来将会更吃力一些。毕竟像「待」这样的汉字特定 unicode 组合其实是不需要模型学习的，但模型却需要通过学习来知道合法的 unicode 序列。</td></tr></tbody></table>
+
+<p>通常在模型训练不够充足的时候，模型会输出一些乱码（不合法的 unicode 序列）：</p>
+<ul>
+<li><strong>词表扩充</strong></li>
+</ul>
+<p>为了降低模型的训练难度，人们通常会考虑在原来的词表上进行「词表扩充」，</p>
+<p>也就是将一些常见的汉字 token 手动添加到原来的 tokenizer 中，从而降低模型的训练难度。</p>
+<p>我们对比 [<a href="https://link.zhihu.com/?target=https%3A//github.com/ymcui/Chinese-LLaMA-Alpaca">Chinese-LLaMA</a>] 和 [<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/decapoda-research/llama-7b-hf">LLaMA</a>] 之间的 tokenizer 的区别：</p>
+<p><img src="https://pic3.zhimg.com/v2-c4937d17cf9aef19f1fc161b6d923cd6_b.jpg" alt></p>
+<blockquote>
+<p>上述图片来自可视化工具 [<a href="https://link.zhihu.com/?target=https%3A//github.com/HarderThenHarder/transformers_tasks/blob/main/tools/tokenizer_viewer/readme.md">tokenizer_viewer</a>]。</p>
+</blockquote>
+<p>我们可以发现：Chinese LLaMA 在原始 tokenizer 上新增了17953 个 tokens，且加入 token 的大部分为汉字。</p>
+<p>而在 [<a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2304.07854.pdf">BELLE</a>] 中也有同样的做法：</p>
+<p>在 120w 行中文文本上训练出一个 5w 规模的 token 集合，</p>
+<p>并将这部分 token 集合与原来的 LLaMA 词表做合并，</p>
+<p>最后再在 3.2B 的中文语料上对这部分新扩展的 token embedding 做二次预训练。</p>
+<p><img src="https://pic2.zhimg.com/v2-cbae3dc2dc39804b3cb6d5ff547e7625_b.jpg" alt></p>
+<h3 id="1-2-Language-Model-PreTraining"><a href="#1-2-Language-Model-PreTraining" class="headerlink" title="1.2 Language Model PreTraining"></a>1.2 Language Model PreTraining</h3><p>在扩充完 tokenizer 后，我们就可以开始正式进行模型的预训练步骤了。</p>
+<p>Pretraining 的思路很简单，就是输入一堆文本，让模型做 Next Token Prediction 的任务，这个很好理解。</p>
+<p>我们主要来讨论几种预训练过程中所用到的方法：数据源采样、数据预处理、模型结构。</p>
+<ul>
+<li><strong>数据源采样</strong></li>
+</ul>
+<p>在 [<a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2005.14165.pdf">gpt3</a>] 的训练过程中，存在多个训练数据源，论文中提到：对不同的数据源会选择不同采样比例：</p>
+<p><img src="https://pic2.zhimg.com/v2-8280f19219e9a4ec73a7cec4c4175ced_b.jpg" alt></p>
+<p>通过「数据源」采样的方式，能够缓解模型在训练的时候受到「数据集规模大小」的影响。</p>
+<p>从上图中可以看到，相对较大的数据集（Common Crawl）会使用相对较大的采样比例（60%），</p>
+<p>这个比例远远小于该数据集在整体数据集中所占的规模（410 / 499 = 82.1%），</p>
+<p>因此，CC 数据集最终实际上只被训练了 0.44（0.6 / 0.82 * (300 / 499））个 epoch。</p>
+<p>而对于规模比较小的数据集（Wikipedia），则将多被训练几次（3.4 个 epoch）。</p>
+<p>这样一来就能使得模型不会太偏向于规模较大的数据集，从而失去对规模小但作用大的数据集上的学习信息。</p>
+<ul>
+<li><strong>数据预处理</strong></li>
+</ul>
+<p>数据预处理主要指如何将「文档」进行向量化。</p>
+<p>通常来讲，在 Finetune 任务中，我们通常会直接使用 truncation 将超过阈值（2048）的文本给截断，</p>
+<p>但在 Pretrain 任务中，这种方式显得有些浪费。</p>
+<p>以书籍数据为例，一本书的内容肯定远远多余 2048 个 token，但如果采用头部截断的方式，</p>
+<p>则每本书永远只能够学习到开头的 2048 tokens 的内容（连序章都不一定能看完）。</p>
+<p>因此，最好的方式是将长文章按照 seq_len（2048）作分割，将切割后的向量喂给模型做训练。</p>
+<ul>
+<li><strong>模型结构</strong></li>
+</ul>
+<p>为了加快模型的训练速度，通常会在 decoder 模型中加入一些 tricks 来缩短模型训练周期。</p>
+<p>目前大部分加速 tricks 都集中在 Attention 计算上（如：MQA 和 Flash Attention [<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/tiiuae/falcon-40b">falcon</a>] 等）；</p>
+<p>此外，为了让模型能够在不同长度的样本上都具备较好的推理能力，</p>
+<p>通常也会在 Position Embedding 上进行些处理，选用 ALiBi（[<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/bigscience/bloom-7b1">Bloom</a>]）或 RoPE（[<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/spaces/THUDM/GLM-130B">GLM-130B</a>]）等。</p>
+<p>具体内容可以参考下面这篇文章：</p>
+<h3 id="1-3-数据集清理"><a href="#1-3-数据集清理" class="headerlink" title="1.3 数据集清理"></a>1.3 数据集清理</h3><p>中文预训练数据集可以使用 [<a href="https://link.zhihu.com/?target=https%3A//data.baai.ac.cn/details/WuDaoCorporaText">悟道</a>]，数据集分布如下（主要以百科、博客为主）：</p>
+<p><img src="https://pic4.zhimg.com/v2-3062044c5131dd4589ed3fdb10ec94eb_b.jpg" alt></p>
+<p>但开源数据集可以用于实验，如果想突破性能，则需要我们自己进行数据集构建。</p>
+<p>在 [<a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2306.01116.pdf">falcon paper</a>] 中提到，</p>
+<p>仅使用「清洗后的互联网数据」就能够让模型比在「精心构建的数据集」上有更好的效果，</p>
+<p>一些已有的数据集和它们的处理方法如下：</p>
+<p><img src="https://pic2.zhimg.com/v2-9758e1401e4e7a38ea4df9e83d2c4665_b.jpg" alt></p>
+<p>有关 Falcon 更多的细节可以看这里：</p>
+<h3 id="1-4-模型效果评测"><a href="#1-4-模型效果评测" class="headerlink" title="1.4 模型效果评测"></a>1.4 模型效果评测</h3><p>关于 Language Modeling 的量化指标，较为普遍的有 [<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/424162193">PPL</a>]，[<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/424162193">BPC</a>] 等，</p>
+<p>可以简单理解为在生成结果和目标文本之间的 Cross Entropy Loss 上做了一些处理。</p>
+<p>这种方式可以用来评估模型对「语言模板」的拟合程度，</p>
+<p>即给定一段话，预测后面可能出现哪些合法的、通顺的字词。</p>
+<p>但仅仅是「生成通顺句子」的能力现在已经很难满足现在人们的需求，</p>
+<p>大部分 LLM 都具备生成流畅和通顺语句能力，很难比较哪个好，哪个更好。</p>
+<p><strong>为此，我们需要能够评估另外一个大模型的重要能力 —— 知识蕴含能力</strong>。</p>
+<ul>
+<li><strong>C-Eval</strong></li>
+</ul>
+<p>一个很好的中文知识能力测试数据集是 [<a href="https://link.zhihu.com/?target=https%3A//github.com/SJTU-LIT/ceval">C-Eval</a>]，涵盖1.4w 道选择题，共 52 个学科。</p>
+<p>覆盖学科如下：</p>
+<p><img src="https://pic1.zhimg.com/v2-9eaf3f515f7a0c45a8ebc312f0c86438_b.jpg" alt></p>
+<p>由于是选择题的形式，我们可以通过将题目写进 prompt 中，</p>
+<p>并让模型续写 1 个 token，判断这个续写 token 的答案是不是正确答案即可。</p>
+<p>但大部分没有精调过的预训练模型可能无法续写出「A B C D」这样的选项答案，</p>
+<p>因此，官方推荐使用 5-shot 的方式来让模型知道如何输出答案：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">以下是中国关于会计考试的单项选择题，请选出其中的正确答案。</span><br><span class="line"></span><br><span class="line">下列关于税法基本原则的表述中，不正确的是____。</span><br><span class="line">A. 税收法定原则包括税收要件法定原则和税务合法性原则</span><br><span class="line">B. 税收公平原则源于法律上的平等性原则</span><br><span class="line">C. 税收效率原则包含经济效率和行政效率两个方面</span><br><span class="line">D. 税务机关按法定程序依法征税，可以自由做出减征、停征或免征税款的决定</span><br><span class="line">答案：D</span><br><span class="line"></span><br><span class="line">甲公司是国内一家领先的新媒体、通信及移动增值服务公司，由于遭受世界金融危机，甲公司经济利润严重下滑，经营面临困境，但为了稳定职工队伍，公司并未进行裁员，而是实行高层管理人员减薪措施。甲公司此举采用的收缩战略方式是____。</span><br><span class="line">A. 转向战略</span><br><span class="line">B. 放弃战略</span><br><span class="line">C. 紧缩与集中战略</span><br><span class="line">D. 稳定战略</span><br><span class="line">答案：C</span><br><span class="line"></span><br><span class="line">...             # 第 3, 4, 5 道样例题</span><br><span class="line"></span><br><span class="line">下列各项中，不能增加企业核心竞争力的是____。</span><br><span class="line">A. 产品差异化</span><br><span class="line">B. 购买生产专利权</span><br><span class="line">C. 创新生产技术</span><br><span class="line">D. 聘用生产外包商</span><br><span class="line">答案：</span><br></pre></td></tr></table></figure>
+<p>通过前面的样例后，模型能够知道在「答案：」后面应该输出选项字母。</p>
+<p>于是，我们获得模型续写后的第一个 token 的概率分布（logits），</p>
+<p>并取出「A B C D」这 4 个字母的概率，通过 softmax 进行归一化：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">probs = (</span><br><span class="line">    torch.nn.functional.softmax(</span><br><span class="line">        torch.tensor(</span><br><span class="line">            [</span><br><span class="line">                logits[self.tokenizer.encode(</span><br><span class="line">                    &quot;A&quot;, bos=False, eos=False)[0]],</span><br><span class="line">                logits[self.tokenizer.encode(</span><br><span class="line">                    &quot;B&quot;, bos=False, eos=False)[0]],</span><br><span class="line">                logits[self.tokenizer.encode(</span><br><span class="line">                    &quot;C&quot;, bos=False, eos=False)[0]],</span><br><span class="line">                logits[self.tokenizer.encode(</span><br><span class="line">                    &quot;D&quot;, bos=False, eos=False)[0]],</span><br><span class="line">            ]</span><br><span class="line">        ),</span><br><span class="line">        dim=0,</span><br><span class="line">    ).detach().cpu().numpy()</span><br><span class="line">)</span><br><span class="line">pred = &#123;0: &quot;A&quot;, 1: &quot;B&quot;, 2: &quot;C&quot;, 3: &quot;D&quot;&#125;[np.argmax(probs)]           # 将概率最大的选项作为模型输出的答案</span><br></pre></td></tr></table></figure>
+<p>C-Eval 通过这种方式测出了许多模型在中文知识上的效果，</p>
+<p>由于是 4 选项问题，所以基线（随机选择）的正确率是 25%。</p>
+<p>C-Eval 也再一次证明了 GPT-4 是个多么强大的知识模型：</p>
+<p><img src="https://pic3.zhimg.com/v2-973fde52fa9667a4f2cea7794653b5da_b.jpg" alt></p>
+<h2 id="2-指令微调阶段（Instruction-Tuning-Stage）"><a href="#2-指令微调阶段（Instruction-Tuning-Stage）" class="headerlink" title="2. 指令微调阶段（Instruction Tuning Stage）"></a>2. 指令微调阶段（Instruction Tuning Stage）</h2><p>在完成第一阶段的预训练后，就可以开始进到指令微调阶段了。</p>
+<p>由于预训练任务的本质在于「续写」，而「续写」的方式并一定能够很好的回答用户的问题。</p>
+<p>例如：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>用户问题</th>
+<th>用户预期回答</th>
+<th>模型续写结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>《无间道》的主演有哪些？</td>
+<td>刘德华、梁朝伟</td>
+<td>《无间道》的主演有哪些？不少观众期待看到阵容公告，今天小编…</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>因为训练大多来自互联网中的数据，我们无法保证数据中只存在存在规范的「一问一答」格式，</p>
+<p>这就会造成预训练模型通常无法直接给出人们想要的答案。</p>
+<p>但是，这并不代表预训练模型「无知」，只是需要我们用一些巧妙的「技巧」来引导出答案：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>用户问题</th>
+<th>用户预期回答</th>
+<th>模型续写结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>《无间道》的主演有</td>
+<td>刘德华、梁朝伟</td>
+<td>《无间道》的主演有刘德华、梁朝伟和黄秋生,而这部电影也是香港警匪片的代表作之一。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>不过，这种需要用户精心设计从而去「套」答案的方式，显然没有那么优雅。</p>
+<p>既然模型知道这些知识，只是不符合我们人类的对话习惯，那么我们只要再去教会模型「如何对话」就好了。</p>
+<p><strong>这就是 Instruction Tuning 要做的事情，即指令对齐</strong>。</p>
+<p>OpenAI 在 [<a href="https://link.zhihu.com/?target=https%3A//openai.com/research/instruction-following">instruction-following</a>] 中展示了 GPT-3 和经过指令微调前后模型的区别：</p>
+<p><img src="https://pic3.zhimg.com/v2-a7a8e7aed0750d189f792b19e8272dfe_b.jpg" alt></p>
+<h3 id="2-1-Self-Instruction"><a href="#2-1-Self-Instruction" class="headerlink" title="2.1 Self Instruction"></a>2.1 Self Instruction</h3><p>既然我们需要去「教会模型说人话」，</p>
+<p>那么我们就需要去精心编写各式各样人们在对话中可能询问的问题，以及问题的答案。</p>
+<p>在 [<a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2203.02155.pdf">InstructGPT Paper</a>] 中，使用了 1.3w 的数据来对 GPT-3.5 进行监督学习（下图中左 SFT Data）：</p>
+<p><img src="https://pic1.zhimg.com/v2-23f809decd7d6f6c77a640cfbd8ad3c4_b.jpg" alt></p>
+<p>可以观察到，数据集中人工标注（labeler）占大头，</p>
+<p>这还仅仅只是 InstructGPT，和 ChatGPT 远远不是一个量级。</p>
+<blockquote>
+<p>非官方消息：ChatGPT 使用了百万量级的数据进行指令微调。</p>
+</blockquote>
+<p>可见，使用人工标注是一件成本巨大的事情，只是找到人不够，需要找到「专业」且「认知一致」的标注团队。</p>
+<p>如果这件事从头开始做自然很难（OpenAI 确实厉害），但今天我们已经有了 ChatGPT 了，</p>
+<p><strong>我们让 ChatGPT 来教我们自己的模型不就好了吗？</strong></p>
+<p>这就是 Self Instruction 的思路，即通过 ChatGPT 的输入输出来蒸馏自己的模型。</p>
+<p>一个非常出名的项目是 [<a href="https://link.zhihu.com/?target=https%3A//github.com/tatsu-lab/stanford_alpaca">stanford_alpaca</a>]。</p>
+<p>如果从 ChatGPT 「套」数据，那么我们至少需要「套」哪些数据。</p>
+<p>Instruction Tuning 中的「输入」（问题）和「输出」（答案）是训练模型的关键，</p>
+<p>答案很好得到，喂给 ChatGPT 问题根据返回结果就能获得，</p>
+<p>但「问题」从哪里获得呢？</p>
+<p>（靠人想太累了，屏幕前的你不妨试试，看看短时间内能想出多少有价值的问题）</p>
+<p>Alpaca 则是使用「种子指令（seed）」，使得 ChatGPT 既生成「问题」又生成「答案」。</p>
+<p>由于 Alpaca 是英文项目，为了便于理解，我们使用相同思路的中文项目 [<a href="https://link.zhihu.com/?target=https%3A//github.com/LianjiaTech/BELLE">BELLE</a>] 作为例子。</p>
+<p>通俗来讲，就是人为的先给一些「训练数据样例」让 ChatGPT 看，</p>
+<p>紧接着利用 ChatGPT 的续写功能，让其不断地举一反三出新的训练数据集：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">你被要求提供10个多样化的任务指令。这些任务指令将被提供给GPT模型，我们将评估GPT模型完成指令的能力。</span><br><span class="line">以下是你提供指令需要满足的要求：</span><br><span class="line">1.尽量不要在每个指令中重复动词，要最大化指令的多样性。</span><br><span class="line">2.使用指令的语气也应该多样化。例如，将问题与祈使句结合起来。</span><br><span class="line">3.指令类型应该是多样化的，包括各种类型的任务，类别种类例如：brainstorming，open QA，closed QA，rewrite，extract，generation，classification，chat，summarization。</span><br><span class="line">4.GPT语言模型应该能够完成这些指令。例如，不要要求助手创建任何视觉或音频输出。例如，不要要求助手在下午5点叫醒你或设置提醒，因为它无法执行任何操作。例如，指令不应该和音频、视频、图片、链接相关，因为GPT模型无法执行这个操作。</span><br><span class="line">5.指令用中文书写，指令应该是1到2个句子，允许使用祈使句或问句。</span><br><span class="line">6.你应该给指令生成适当的输入，输入字段应包含为指令提供的具体示例，它应该涉及现实数据，不应包含简单的占位符。输入应提供充实的内容，使指令具有挑战性。</span><br><span class="line">7.并非所有指令都需要输入。例如，当指令询问一些常识信息，比如“世界上最高的山峰是什么”，不需要提供具体的上下文。在这种情况下，我们只需在输入字段中放置“&lt;无输入&gt;”。当输入需要提供一些文本素材（例如文章，文章链接）时，就在输入部分直接提供一些样例。当输入需要提供音频、图片、视频或者链接时，则不是满足要求的指令。</span><br><span class="line">8.输出应该是针对指令和输入的恰当回答。 </span><br><span class="line">下面是10个任务指令的列表：</span><br><span class="line">###</span><br><span class="line">1. 指令: 在面试中如何回答这个问题？</span><br><span class="line">1. 输入:当你在车里独处时，你会想些什么？</span><br><span class="line">1. 输出:如果是在晚上，我通常会考虑我今天所取得的进步，如果是在早上，我会思考如何做到最好。我也会尝试练习感恩和活在当下的状态，以避免分心驾驶。</span><br><span class="line">###</span><br><span class="line">2. 指令: 按人口对这些国家进行排名。</span><br><span class="line">2. 输入:巴西，中国，美国，日本，加拿大，澳大利亚</span><br><span class="line">2. 输出:中国，美国，巴西，日本，加拿大，澳大利亚</span><br><span class="line">###</span><br><span class="line">3. 指令:</span><br></pre></td></tr></table></figure>
+<p>如上述例子所示，我们先给出 2 个样例，并让 ChatGPT 进行续写：</p>
+<p><img src="https://pic1.zhimg.com/v2-9bc23dd4ff89c4a463a6f92eb4c54c90_b.jpg" alt></p>
+<p>关于 BELLE 的更多细节可以参考这篇文章：</p>
+<h3 id="2-2-开源数据集整理"><a href="#2-2-开源数据集整理" class="headerlink" title="2.2 开源数据集整理"></a>2.2 开源数据集整理</h3><p>在这一章中，我们将梳理一些开源的 Instruction Tuning 的数据集，</p>
+<p>除了直接拿来用以外，我们期望通过分析这些已有数据集，从而学习如何构建一个指令数据集。</p>
+<ul>
+<li><strong>Alpaca</strong></li>
+</ul>
+<p>[<a href="https://link.zhihu.com/?target=https%3A//github.com/tatsu-lab/stanford_alpaca/blob/main/alpaca_data.json">stanford_alpaca</a>] 采用上述的 self instruction 的方式采集了 5200 条指令训练数据集。</p>
+<p>数据样例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;instruction&quot;: &quot;Arrange the words in the given sentence to form a grammatically correct sentence.&quot;,</span><br><span class="line">    &quot;input&quot;: &quot;quickly the brown fox jumped&quot;,</span><br><span class="line">    &quot;output&quot;: &quot;The quick brown fox jumped quickly.&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，instruction 代表要求模型做的任务，input 代表用户输入， output 代表喂给模型的 label。</p>
+<p>Alpaca 覆盖了多种类型的指令，其数据分布如下：</p>
+<p><img src="https://pic1.zhimg.com/v2-90866e67c5ae6f0e383db95db5bcc0a4_b.jpg" alt></p>
+<p>包含写作、描述、分类、摘要等多种类型的任务集合。</p>
+<ul>
+<li><strong>BELLE</strong></li>
+</ul>
+<p>BELLE 开放了好几种规模的数据集，[<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/datasets/BelleGroup/train_1M_CN">100万</a>]、[<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/datasets/BelleGroup/train_2M_CN">200万</a>]、[<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/datasets/BelleGroup/train_3.5M_CN">350万</a>] 等。</p>
+<p>训练数据集样例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;instruction&quot;: &quot;判断给定的文章是否符合语法规则。如果不符合，请提供修改建议。 下面是一篇文章的开头: ‘为了探讨这个主题，本文将提供一系列数据和实例，以证明这一观点。’&quot;,</span><br><span class="line">    &quot;input&quot;: &quot;&quot;,</span><br><span class="line">    &quot;output&quot;: &quot;这个开头符合语法规则。&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于数据量很大，我们无法统计出训练数据集中各任务的真实占比，</p>
+<p>但从 [<a href="https://link.zhihu.com/?target=https%3A//github.com/LianjiaTech/BELLE/blob/main/eval/eval_set.json">1000条评测集</a>] 数据分布可以推测出，训练数据集中同样包含：摘要、问答、分类等任务。</p>
+<p><img src="https://pic1.zhimg.com/v2-6698ae5b6e3d6b7485ea66f82726f428_b.jpg" alt></p>
+<p>我们按照类别对评测数据进行采样，结果如下：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>任务名称</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文本生成</td>
+<td>为一种智能手表编写用户手册，包括详细的使用说明和操作步骤。</td>
+</tr>
+<tr>
+<td>头脑风暴</td>
+<td>针对给定的主题，进行头脑风暴并记录所有想法。  </td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>如何提高公司的销售额？ |<br>| 开放域问答 | 用一两句话描述著名的尼罗河是如何形成的。 |<br>| 封闭域问答 | 从以下选项中选择正确的词汇填空以完整下面的句子。 他喜欢去_______看电影。A) 邮局 B）超市 C）电影院 D）音乐会 |<br>| 分类 | 请将以下这篇文章分类为新闻报道、科学文章或社论。<br>据媒体新闻援引美国福克斯新闻网报道，美国伯克希尔哈撒韦公司首席执行官、著名投资人巴菲特近日就美国银行业危机与总统拜登的团队进行对话。 |<br>| 抽取 | 基于以下表格，请问张三的考勤情况<br>员工姓名,日期,上班时间,下班时间,是否迟到,是否早退,是否请假<br>张三,1月1日,8:30,17:30,否,否,否<br>李四,1月1日,9:00,18:00,是,否,否<br>王五,1月1日,8:00,16:30,否,是,否<br>赵六,1月1日,8:30,17:00,否,否,是<br>张三,1月2日,8:00,17:00,否,否,否<br>李四,1月2日,8:30,17:30,否,否,否<br>王五,1月2日,9:00,18:00,是,否,否<br>赵六,1月2日,8:30,17:00,否,否,是 |<br>| 重写 | 根据提供的文本重写其中的一段，使之更加简明扼要，同时不丢失原文本的主要信息。<br>纽约市，简称“纽约”，通常被称为“大苹果”，是美国最大的城市，也是全世界最大的城市之一。位于美国东海岸，东北部边界是大西洋，在新泽西州的东南部。 |<br>| 摘要 | 基于下面的这个故事，总结其中最重要的三个事件。<br>小明是一个好学生，每天早上都要起得很早去上学。有一天，他迟到了，因为他的家里来了一个客人。晚上，他参加了一次班级会议，会议主题是如何提高学习效率。回到家后，他又花了一些时间复习功课。 |<br>| Code &amp; Math | 按照以下要求，写一个SQL查询语句：从表中查找所有性别为女性的学生的姓名和学号。<br>SELECT name, id FROM students WHERE gender = ‘女性’ |</p>
+<ul>
+<li><strong>Vicuna</strong></li>
+<li><strong>BAIZE</strong></li>
+</ul>
+<h3 id="2-3-模型的评测方法"><a href="#2-3-模型的评测方法" class="headerlink" title="2.3 模型的评测方法"></a>2.3 模型的评测方法</h3><p>比起预训练（Pretrain）环节里相对明确的评价指标（如PPL、NLL等），</p>
+<p>Instruction 环节中的评价指标比较令人头疼。</p>
+<p>鉴于语言生成模型的发展速度，BLEU 和 ROUGH 这样的指标已经不再客观。</p>
+<p>一种比较流行的方式是像 [<a href="https://link.zhihu.com/?target=https%3A//github.com/lm-sys/FastChat/blob/main/fastchat/eval/table/prompt.jsonl">FastChat</a>] 中一样，利用 GPT-4 为模型的生成结果打分，</p>
+<p>我们也尝试使用同样的 Prompt 对 3 种开源模型：OpenLlama、ChatGLM、BELLE 进行测试。</p>
+<blockquote>
+<p>注意：下面的测试结果仅源自我们自己的实验，<strong>不具备任何权威性</strong>。</p>
+</blockquote>
+<p>对于每一个问题，我们先获得 ChatGPT 的回复，以及另外 3 种模型的回复，</p>
+<p>接着我们将 「ChatGPT 答案 - 候选模型答案」这样的 pair 喂给 GPT-4 打分（满分为 10 分）。</p>
+<p>得到的结果如下：</p>
+<p><img src="https://pic1.zhimg.com/v2-30369e5361b3097e6c9c3254c1f9b5e4_b.jpg" alt></p>
+<p>我们对每个任务单独进行了统计，并在最后一列求得平均值。</p>
+<p>GPT-4 会对每一条测试样本的 2 个答案分别进行打分，并给出打分理由：</p>
+<p><img src="https://pic3.zhimg.com/v2-8adadb3bab29880e9fecacb673da87d2_b.jpg" alt></p>
+<p>但是，我们发现，GPT-4 打出的分数和给出理由<strong>并不一定正确</strong>。</p>
+<p>如上图所示，GPT-4 为右边模型的答案打出了更高的分数，给出的理由是：</p>
+<p>将「最长时期」改为了「最长时期之一」会更准确。</p>
+<p>但事实上，Instruction 中明确设定就是「最长时期」，</p>
+<p>这种「给高分」的理由其实是不正确的。</p>
+<p>此外，我们还发现，仅仅调换句子顺序也会对最后打分结果产生影响，</p>
+<p>针对这个问题，我们考虑「调换句子顺序并求和平均」来缓解。</p>
+<p>但不管怎么样，GPT-4 给出的分数或许并没有我们想象中的那么靠谱，</p>
+<p>为此，我们通过人工的 Review 的方式对每个答案进行了一次回扫，得到的结果和标准如下：</p>
+<blockquote>
+<p>再次重申：我们只是期望指出 GPT-4 打分可能会和实际产生偏差的问题，<strong>这里排名不具备任何权威性</strong>。</p>
+</blockquote>
+<p><img src="https://pic1.zhimg.com/v2-73395d9c1c2bb8b8376009716428f530_b.jpg" alt></p>
+<p>我们可以看到，</p>
+<p>在 GPT-4 打分的结果中，已经有模型的效果甚至超过了 ChatGPT（分数为 1.02），</p>
+<p>但再经过人工 Review 后，ChatGPT 的答案是我们认为更合理一些的。</p>
+<p>当然，最近陆陆续续的推出了许多新的评测方法，如：[<a href="https://link.zhihu.com/?target=https%3A//github.com/WeOpenML/PandaLM">PandaLM</a>]，</p>
+<p>以及许多比较有影响力的评测集，如：[<a href="https://link.zhihu.com/?target=https%3A//github.com/SJTU-LIT/ceval">C-Eval</a>]、[<a href="https://link.zhihu.com/?target=https%3A//huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard">open_llm_leaderboard</a>] 等，</p>
+<p>我们或许会在后续的整理中更新。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://michealxie94.github.io">michealxie94</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://michealxie94.github.io/post/nlp003.html">https://michealxie94.github.io/post/nlp003.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://michealxie94.github.io" target="_blank">michealxie94</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="wechat,weibo,qq,qzone,douban,facebook,twitter"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/post/LC931.html" title="LC931. 下降路径最小和"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">LC931. 下降路径最小和</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">michealxie94</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/michealxie94"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/michealxie94" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:michealxie94@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a><a class="social-icon" href="https://blog.csdn.net/qq_30138291" target="_blank" title="Csdn"><i class="fas fa-light fa-circle-nodes" style="color: #fc3c39;"></i></a><a class="social-icon" href="https://leetcode.cn/u/peaceful-bohrsgr/" target="_blank" title="Leetcode"><i class="fas fa-light fa-cube" style="color: #ffa116;"></i></a><a class="social-icon" href="https://www.zhihu.com/" target="_blank" title="Zhihu"><i class="fab fa-zhihu" style="color: #0c5fed;"></i></a><a class="social-icon" href="https://www.bilibili.com/" target="_blank" title="Bilibili"><i class="fab fa-bilibili" style="color: #40b7df;"></i></a><a class="social-icon" href="https://developer.aliyun.com/bigdata/" target="_blank" title="AliCloud"><i class="fa-solid fa-cloud" style="color: #ff7a1b;"></i></a><a class="social-icon" href="https://www.overleaf.com/project" target="_blank" title="OverLeaf"><i class="fa-solid fa-leaf fa-fade" style="color: #138a07;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">2023 不负韶华 ！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AC%E8%BD%BD"><span class="toc-number">1.</span> <span class="toc-text">转载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%A2%84%E8%AE%AD%E7%BB%83%E9%98%B6%E6%AE%B5%EF%BC%88Pretraining-Stage%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">1. 预训练阶段（Pretraining Stage）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-Tokenizer-Training"><span class="toc-number">2.1.</span> <span class="toc-text">1.1 Tokenizer Training</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-Language-Model-PreTraining"><span class="toc-number">2.2.</span> <span class="toc-text">1.2 Language Model PreTraining</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E6%95%B0%E6%8D%AE%E9%9B%86%E6%B8%85%E7%90%86"><span class="toc-number">2.3.</span> <span class="toc-text">1.3 数据集清理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-%E6%A8%A1%E5%9E%8B%E6%95%88%E6%9E%9C%E8%AF%84%E6%B5%8B"><span class="toc-number">2.4.</span> <span class="toc-text">1.4 模型效果评测</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%8C%87%E4%BB%A4%E5%BE%AE%E8%B0%83%E9%98%B6%E6%AE%B5%EF%BC%88Instruction-Tuning-Stage%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">2. 指令微调阶段（Instruction Tuning Stage）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Self-Instruction"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 Self Instruction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E5%BC%80%E6%BA%90%E6%95%B0%E6%8D%AE%E9%9B%86%E6%95%B4%E7%90%86"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 开源数据集整理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%AF%84%E6%B5%8B%E6%96%B9%E6%B3%95"><span class="toc-number">3.3.</span> <span class="toc-text">2.3 模型的评测方法</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/nlp003.html" title="003【LLM】从零开始训练大模型-知乎-何枝">003【LLM】从零开始训练大模型-知乎-何枝</a><time datetime="2023-07-12T17:36:06.000Z" title="发表于 2023-07-13 01:36:06">2023-07-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LC931.html" title="LC931. 下降路径最小和">LC931. 下降路径最小和</a><time datetime="2023-07-12T17:18:28.000Z" title="发表于 2023-07-13 01:18:28">2023-07-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/d2b8e29c.html" title="Hexo Blog实用工具">Hexo Blog实用工具</a><time datetime="2023-07-12T16:33:08.000Z" title="发表于 2023-07-13 00:33:08">2023-07-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/nlp002.html" title="002大模型LLM-微调经验分享&amp;总结-知乎-刘聪NLP">002大模型LLM-微调经验分享&amp;总结-知乎-刘聪NLP</a><time datetime="2023-07-12T09:05:53.000Z" title="发表于 2023-07-12 17:05:53">2023-07-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LC15.html" title="LC15. 三数之和">LC15. 三数之和</a><time datetime="2023-07-09T15:47:07.000Z" title="发表于 2023-07-09 23:47:07">2023-07-09</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By michealxie94</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(()=>{
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://michealxie94.zeabur.app/',
+      region: '',
+      onCommentLoaded: function () {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://michealxie94.zeabur.app/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      countELement.textContent = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const runFn = () => {
+    init()
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') {
+      setTimeout(runFn,0)
+      return
+    } 
+    getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script><script src="/js/weather.js"></script><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
