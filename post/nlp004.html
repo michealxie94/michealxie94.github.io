@@ -1,0 +1,384 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>004 大模型微调总结-知乎-绝密伏击 | michealxie94</title><meta name="author" content="michealxie94"><meta name="copyright" content="michealxie94"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="转载本文转载于：@知乎-绝密伏击 总结    日期 inc skill 创新之处 参数变化 效果 论文     2019 谷歌 Adapter Tuning 1、设计Adapter 结构，嵌入 Transformer 的结构2、Adapter 结构：2.1  down-project 层将高维度特征映射到低维特征2.2  +一个非线形层之后，再用一个 up-project 结构将低维特征映射回原来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="004 大模型微调总结-知乎-绝密伏击">
+<meta property="og:url" content="https://michealxie94.github.io/post/nlp004.html">
+<meta property="og:site_name" content="michealxie94">
+<meta property="og:description" content="转载本文转载于：@知乎-绝密伏击 总结    日期 inc skill 创新之处 参数变化 效果 论文     2019 谷歌 Adapter Tuning 1、设计Adapter 结构，嵌入 Transformer 的结构2、Adapter 结构：2.1  down-project 层将高维度特征映射到低维特征2.2  +一个非线形层之后，再用一个 up-project 结构将低维特征映射回原来">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://michealxie94.github.io/img/avatar.jpg">
+<meta property="article:published_time" content="2023-07-14T13:17:52.000Z">
+<meta property="article:modified_time" content="2023-07-14T16:53:04.072Z">
+<meta property="article:author" content="michealxie94">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://michealxie94.github.io/img/avatar.jpg"><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="https://michealxie94.github.io/post/nlp004.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '004 大模型微调总结-知乎-绝密伏击',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-07-15 00:53:04'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (false) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/your_name.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="michealxie94"><span class="site-name">michealxie94</span></a></span><div id="he-plugin-simple"></div><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">004 大模型微调总结-知乎-绝密伏击</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-07-14T13:17:52.000Z" title="发表于 2023-07-14 21:17:52">2023-07-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-07-14T16:53:04.072Z" title="更新于 2023-07-15 00:53:04">2023-07-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/NLP/">NLP</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>12分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="004 大模型微调总结-知乎-绝密伏击"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="转载"><a href="#转载" class="headerlink" title="转载"></a><strong>转载</strong></h2><p>本文转载于：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/627642632">@知乎-绝密伏击</a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">日期</th>
+<th style="text-align:left">inc</th>
+<th style="text-align:left">skill</th>
+<th style="text-align:left">创新之处</th>
+<th style="text-align:center">参数变化</th>
+<th style="text-align:left">效果</th>
+<th style="text-align:left">论文</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">2019</td>
+<td style="text-align:left">谷歌</td>
+<td style="text-align:left">Adapter Tuning</td>
+<td style="text-align:left">1、设计Adapter 结构，嵌入 Transformer 的结构<p>2、Adapter 结构：</p><p>2.1  down-project 层将高维度特征映射到低维特征</p><p>2.2  +一个非线形层之后，再用一个 up-project 结构将低维特征映射回原来的高维特征</p><p>2.3 设计skip-connection结构，确保最差的情况下能够退化为identity（类似残差结构）</p></td>
+<td style="text-align:center">+3.6%参数</td>
+<td style="text-align:left">和Full-Finetuning 接近的效果</td>
+<td style="text-align:left">《Parameter-Efficient Transfer Learning for NLP》</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a><strong>引言</strong></h2><p>最近，深度学习的研究中出现了许多大型预训练模型，例如 <code>GPT-3</code>、<code>ChatGPT</code>、<code>GPT4</code>、<code>ChatGLM-130B</code> 等，这些模型可以在多种自然语言处理任务中取得优异的性能表现。而其中，<code>ChatGPT</code> 模型因为在对话生成方面的表现而备受瞩目，成为了自然语言处理领域的热门研究方向。</p>
+<p><img src="https://pic4.zhimg.com/v2-44afc37628e890e92c3af5bbe7c77457_b.jpg" alt></p>
+<p>然而，这些大型预训练模型的训练成本非常高昂，需要庞大的计算资源和大量的数据，一般人难以承受。这也导致了一些研究人员难以重复和验证先前的研究成果。为了解决这个问题，研究人员开始研究 <code>Parameter-Efficient Fine-Tuning (PEFT)</code> 技术。<code>PEFT</code> 技术旨在<code>通过最小化微调参数的数量和计算复杂度，来提高预训练模型在新任务上的性能，从而缓解大型预训练模型的训练成本</code>。这样一来，即使计算资源受限，也可以利用预训练模型的知识来迅速适应新任务，实现高效的迁移学习。因此，<code>PEFT</code> 技术可以在提高模型效果的同时，大大缩短模型训练时间和计算成本，让更多人能够参与到深度学习研究中来。</p>
+<p><img src="https://pic2.zhimg.com/v2-27bce88b6e16ea8d5dcf266c845e18e1_b.jpg" alt></p>
+<p>在上一篇文章中，介绍了 <code>PEFT</code> 技术中的常用方法 <code>LORA</code>，使得百亿（10B）参数的大模型可以在单卡上训练（显存大小&gt;=40G）。</p>
+<p>今天介绍下另外几种常用的方法，包括 <code>Adapter Tuning</code>、<code>Prompt Tuning</code>、<code>Prefix Tuning</code>、<code>P-Tuning</code>、<code>P-Tuning v2</code> 和 <code>AdaLORA</code>。</p>
+<p><img src="https://pic3.zhimg.com/v2-889a9bf357273815ef84a44fd016b7da_b.jpg" alt></p>
+<h2 id="Adapter-Tuning"><a href="#Adapter-Tuning" class="headerlink" title="Adapter Tuning"></a><code>Adapter Tuning</code></h2><p>2019年谷歌的研究人员首次在论文<a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/1902.00751.pdf">《Parameter-Efficient Transfer Learning for NLP》</a>提出针对 <code>BERT</code> 的 <code>PEFT</code>微调方式，拉开了 <code>PEFT</code> 研究的序幕。他们指出，在面对特定的下游任务时，如果进行 <code>Full-Fintuning</code>（即预训练模型中的所有参数都进行微调），太过低效；而如果采用固定预训练模型的某些层，只微调接近下游任务的那几层参数，又难以达到较好的效果。</p>
+<p>于是他们设计了如下图所示的 <code>Adapter 结构</code>，将其嵌入 <code>Transformer</code> 的结构里面，在训练时，固定住原来预训练模型的参数不变，只对新增的<code>Adapter</code>结构进行微调。同时为了保证训练的高效性（也就是尽可能少的引入更多参数），他们将<code>Adapter</code>设计为这样的结构：</p>
+<ul>
+<li>首先是一个<code> down-project</code> 层将高维度特征映射到低维特征</li>
+<li>然后过一个非线形层之后，再用一个 <code> up-project</code> 结构将低维特征映射回原来的高维特征</li>
+<li>同时也设计了 <code> skip-connection </code> 结构，确保了在最差的情况下能够退化为<code>identity</code>（类似残差结构）。</li>
+</ul>
+<p><img src="https://pic1.zhimg.com/v2-7c0aed5ceccdbc33ed50750bcea36778_b.jpg" alt></p>
+<p>从实验结果来看，该方法能够在只额外对增加的 3.6% 参数规模（相比原来预训练模型的参数量）的情况下取得和<code>Full-Finetuning</code> 接近的效果（GLUE指标在0.4%以内）。</p>
+<p><img src="https://pic3.zhimg.com/v2-eddc8bfc2c06bb396708eced10db9246_b.jpg" alt></p>
+<h2 id="Prefix-Tuning"><a href="#Prefix-Tuning" class="headerlink" title="Prefix Tuning"></a><code>Prefix Tuning</code></h2><p>2021年斯坦福的研究人员在论文《<a href="https://link.zhihu.com/?target=https%3A//aclanthology.org/2021.acl-long.353.pdf">Prefix-Tuning: Optimizing Continuous Prompts for Generation</a>》中提出了 <code>Prefix Tuning</code> 方法。与<code>Full-Finetuning</code> 更新所有参数的方式不同，该方法是在<code> 输入token </code>之前构造一段任务相关的<code> virtual tokens </code>作为<code> Prefix </code>，然后训练的时候只更新<code> Prefix </code> 部分的参数，而 <code>Transformer</code> 中的其他部分参数固定。该方法其实和构造 <code>Prompt</code> 类似，只是 <code>Prompt</code> 是人为构造的“显式”的提示，并且无法更新参数，而 <code>Prefix</code> 则是可以学习的“隐式”的提示。</p>
+<p><img src="https://pic3.zhimg.com/v2-1732a1f9faa50fdae99d3fb12cb41392_b.jpg" alt></p>
+<p>同时，为了防止直接更新<code> Prefix </code> 的参数导致训练不稳定的情况，他们在<code> Prefix </code> 层前面加了<code> MLP </code>结构(相当于将<code> Prefix </code> 分解为更小维度的<code> Input</code>与<code> MLP </code>的组合后输出的结果)，训练完成后，只保留<code> Prefix </code> 的参数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">embedding = torch.nn.Embedding(num_virtual_tokens, token_dim)</span><br><span class="line">transform = torch.nn.Sequential(</span><br><span class="line">    torch.nn.Linear(token_dim, encoder_hidden_size),</span><br><span class="line">    torch.nn.Tanh(),</span><br><span class="line">    torch.nn.Linear(encoder_hidden_size, num_layers * <span class="number">2</span> * token_dim),</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h2 id="Prompt-Tuning"><a href="#Prompt-Tuning" class="headerlink" title="Prompt Tuning"></a><code>Prompt Tuning</code></h2><p><code>Prompt Tuning</code> 是2021年谷歌在论文《<a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2104.08691.pdf">The Power of Scale for Parameter-Efficient <code>Prompt Tuning</code></a>》中提出的微调方法。</p>
+<p>该方法可以看作是 <code>Prefix Tuning</code> 的简化版本，只在输入层加入 prompt tokens，并不需要加入<code> MLP </code>进行调整来解决难训练的问题，主要在 T5 预训练模型上做实验。似乎只要预训练模型足够强大，其他的一切都不是问题。作者也做实验说明随着预训练模型参数量的增加，<code>Prompt Tuning</code>的方法会逼近 Fine-tune 的结果。</p>
+<p>固定预训练参数，为每一个任务额外添加一个或多个 embedding，之后拼接 query 正常输入 LLM，并只训练这些 embedding。左图为单任务全参数微调，右图为 <code>Prompt Tuning</code>。</p>
+<p><img src="https://pic2.zhimg.com/v2-4b9fe13839b33e75bed82dbf4d948329_b.jpg" alt></p>
+<p><img src="https://pic1.zhimg.com/v2-980bbb55d986f1b0df2c5aae8b515e2c_b.jpg" alt></p>
+<p>作者做了一系列对比实验，都在说明：随着预训练模型参数的增加，一切的问题都不是问题，最简单的设置也能达到极好的效果。</p>
+<ul>
+<li>Prompt 长度影响：模型参数达到一定量级时，Prompt 长度为1也能达到不错的效果，Prompt 长度为20就能达到极好效果。</li>
+<li>Prompt初始化方式影响：Random Uniform 方式明显弱于其他两种，但是当模型参数达到一定量级，这种差异也不复存在。</li>
+<li>预训练的方式：LM Adaptation 的方式效果好，但是当模型达到一定规模，差异又几乎没有了。</li>
+<li>微调步数影响：模型参数较小时，步数越多，效果越好。同样随着模型参数达到一定规模，zero shot 也能取得不错效果。</li>
+<li>当参数达到100亿规模与全参数微调方式效果无异。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">from &lt;code&gt;PEFT&lt;/code&gt; import PromptTuningConfig, get_&lt;code&gt;PEFT&lt;/code&gt;_model</span><br><span class="line">&lt;code&gt;PEFT&lt;/code&gt;_config = PromptTuningConfig(task_type=&quot;SEQ_CLS&quot;, num_virtual_tokens=10)</span><br><span class="line">model = AutoModelForCausalLM.from_pretrained(model_name_or_path, return_dict=True)</span><br><span class="line">model = get_&lt;code&gt;PEFT&lt;/code&gt;_model(model, &lt;code&gt;PEFT&lt;/code&gt;_config)</span><br></pre></td></tr></table></figure>
+<h2 id="P-Tuning-v1"><a href="#P-Tuning-v1" class="headerlink" title="P-Tuning v1"></a><code>P-Tuning</code> v1</h2><p><img src="https://pic1.zhimg.com/v2-fe3c213a4207c54d151af2f74838c6a0_b.jpg" alt></p>
+<p><code>P-Tuning</code> 方法的提出主要是为了解决这样一个问题：大模型的 Prompt 构造方式严重影响下游任务的效果。</p>
+<p><img src="https://pic1.zhimg.com/v2-6e6e65e58fff50d38df4bb49bd3dc288_b.jpg" alt></p>
+<p><code>P-Tuning</code> 提出将 Prompt 转换为可以学习的 Embedding 层，只是考虑到直接对 Embedding 参数进行优化会存在这样两个挑战：</p>
+<ul>
+<li>Discretenes： 对输入正常语料的 Embedding 层已经经过预训练，而如果直接对输入的 prompt embedding进行随机初始化训练，容易陷入局部最优。</li>
+<li>Association：没法捕捉到 prompt embedding 之间的相关关系。</li>
+</ul>
+<p>作者在这里提出用<code> MLP </code>+ LSTM 的方式来对 prompt embedding 进行一层处理：</p>
+<p>\begin{align*} h_i &amp; =\text{MLP}\left( \left[ \vec{h_i} : \overleftarrow{h_i} \right] \right) \\ &amp;=\text{MLP}\left( \left[ \text{LSTM}\left( h_{0:i} \right):\text{LSTM}\left( h_{i:m} \right) \right] \right) \end{align*} \tag1 <code>P-Tuning</code> 依然是固定 LLM 参数，利用多层感知机和 LSTM 对 Prompt 进行编码，编码之后与其他向量进行拼接之后正常输入 LLM。注意，训练之后只保留 Prompt 编码之后的向量即可，无需保留编码器。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">self.lstm_head = torch.nn.LSTM(</span><br><span class="line">                    input_size=self.input_size,</span><br><span class="line">                    hidden_size=self.hidden_size,</span><br><span class="line">                    num_layers=num_layers,</span><br><span class="line">                    dropout=lstm_dropout,</span><br><span class="line">                    bidirectional=True,</span><br><span class="line">                    batch_first=True,</span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">self.mlp_head = torch.nn.Sequential(</span><br><span class="line">    torch.nn.Linear(self.hidden_size * 2, self.hidden_size * 2),</span><br><span class="line">    torch.nn.ReLU(),</span><br><span class="line">    torch.nn.Linear(self.hidden_size * 2, self.output_size),</span><br><span class="line">)</span><br><span class="line">self.mlp_head(self.lstm_head(input_embeds)[0])</span><br></pre></td></tr></table></figure>
+<h3 id="与Prefix-Tuning的区别"><a href="#与Prefix-Tuning的区别" class="headerlink" title="与Prefix-Tuning的区别"></a>与Prefix-Tuning的区别</h3><p><code>P-Tuning</code> 和<code> Prefix </code>-Tuning 差不多同时提出，做法其实也有一些相似之处，主要区别在：</p>
+<ul>
+<li><code>Prefix Tuning</code> 是将额外的 embedding 加在开头，看起来更像是模仿 Instruction 指令；而 <code>P-Tuning</code> 的位置则不固定。</li>
+<li><code>Prefix Tuning</code> 通过在每个 Attention 层都加入<code> Prefix </code> Embedding 来增加额外的参数，通过<code> MLP </code>来初始化；而 <code>P-Tuning</code> 只是在输入的时候加入 Embedding，并通过 LSTM+MLP 来初始化。</li>
+</ul>
+<h2 id="P-Tuning-v2-lt-code-gt"><a href="#P-Tuning-v2-lt-code-gt" class="headerlink" title="P-Tuning v2&lt;/code&gt;"></a><code><code>P-Tuning</code> v2&lt;/code&gt;</code></h2><p><code>P-Tuning</code> 的问题是在小参数量模型上表现差（如上图所示）。</p>
+<p><img src="https://pic3.zhimg.com/v2-9e401a134f408434b5d03404d552e786_b.jpg" alt></p>
+<p>于是就有了v2版本：《<a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2110.07602.pdf"><code><code>P-Tuning</code> v2&lt;/code&gt;: <code>Prompt Tuning</code> Can Be Comparable to Fine-tuning Universally Across Scales and Tasks</code></a>》。</p>
+<p>从标题就可以看出，<code><code>P-Tuning</code> v2&lt;/code&gt; 的目标就是要让 <code>Prompt Tuning</code> 能够在不同参数规模的预训练模型、针对不同下游任务的结果上都达到匹敌 Fine-tuning 的结果。</code></p>
+<p>那也就是说当前 <code>Prompt Tuning</code> 方法在这两个方面都存在局限性。</p>
+<ul>
+<li>不同模型规模：<code>Prompt Tuning</code> 和 <code>P-Tuning</code> 这两种方法都是在预训练模型参数规模够足够大时，才能达到和Fine-tuning 类似的效果，而参数规模较小时效果则很差。</li>
+<li>不同任务类型：<code>Prompt Tuning</code> 和 <code>P-Tuning</code> 这两种方法在 sequence tagging 任务上表现都很差。</li>
+</ul>
+<h3 id="主要结构"><a href="#主要结构" class="headerlink" title="主要结构"></a>主要结构</h3><p>相比 <code>Prompt Tuning</code> 和 <code>P-Tuning</code> 的方法， <code><code>P-Tuning</code> v2&lt;/code&gt; 方法在多层加入了 Prompts tokens 作为输入，带来两个方面的好处：</code></p>
+<ol>
+<li>带来更多可学习的参数（从 <code>P-Tuning</code> 和 <code>Prompt Tuning</code> 的0.1%增加到0.1%-3%），同时也足够 parameter-efficient。</li>
+<li>加入到更深层结构中的 Prompt 能给模型预测带来更直接的影响。</li>
+</ol>
+<p>v1 到 v2 的可视化：蓝色部分为参数冻结，橙色部分为可训练部分。</p>
+<p><img src="https://pic3.zhimg.com/v2-c249aa0962e2eba1b6499a69559bd27e_b.jpg" alt></p>
+<h3 id="几个关键设计因素"><a href="#几个关键设计因素" class="headerlink" title="几个关键设计因素"></a>几个关键设计因素</h3><ul>
+<li><strong>Reparameterization</strong>：<code>Prefix Tuning</code> 和 <code>P-Tuning</code> 中都有<code> MLP </code>来构造可训练的 embedding。本文发现在自然语言理解领域，面对不同的任务以及不同的数据集，这种方法可能带来完全相反的结论。</li>
+<li><strong>Prompt Length：</strong> 不同的任务对应的最合适的 Prompt Length 不一样，比如简单分类任务下 length=20 最好，而复杂的任务需要更长的 Prompt Length。</li>
+<li><strong>Multi-task Learning</strong> 多任务对于 <code><code>P-Tuning</code> v2&lt;/code&gt; 是可选的，但可以利用它提供更好的初始化来进一步提高性能。</code></li>
+<li><strong>Classification Head</strong> 使用 LM head 来预测动词是 <code>Prompt Tuning</code> 的核心，但我们发现在完整的数据设置中没有必要这样做，并且这样做与序列标记不兼容。<code><code>P-Tuning</code> v2&lt;/code&gt; 采用和 <code>BERT</code> 一样的方式，在第一个<code> token </code>处应用随机初始化的分类头。</code></li>
+</ul>
+<h3 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h3><ul>
+<li>不同预训练模型大小下的表现，在小模型下取得与 <code>Full-Finetuning</code> 相近的结果，并远远优于 <code>P-Tuning</code>。</li>
+<li>不同任务下的 <code><code>P-Tuning</code> v2&lt;/code&gt; 效果都很好，而 <code>P-Tuning</code> 和 Prompt Learning 效果不好；同时，采用多任务学习的方式能在多数任务上取得最好的结果。</code></li>
+</ul>
+<h2 id="AdaLORA"><a href="#AdaLORA" class="headerlink" title="AdaLORA"></a><code>AdaLORA</code></h2><p>预训练语言模型中的不同权重参数对下游任务的贡献是不同的。因此需要更加智能地分配参数预算，以便在微调过程中更加高效地更新那些对模型性能贡献较大的参数。</p>
+<p>具体来说，通过奇异值分解将权重矩阵分解为增量矩阵，并根据新的重要性度量动态地调整每个增量矩阵中奇异值的大小。这样可以使得在微调过程中只更新那些对模型性能贡献较大或必要的参数，从而提高了模型性能和参数效率。</p>
+<p><img src="https://pic2.zhimg.com/v2-fe068accda3f17dac3e34696b6e81101_b.jpg" alt></p>
+<h2 id="Towards-a-Unified-View-of-PETL"><a href="#Towards-a-Unified-View-of-PETL" class="headerlink" title="Towards a Unified View of PETL"></a>Towards a Unified View of PETL</h2><p>这篇 ICLR2022 的文章研究了典型的 <code>PEFT</code> 方法，试图将 <code>PEFT</code> 统一到一个框架下，找出它们起作用的具体原因，并进行改进。主要研究了三个问题：</p>
+<ul>
+<li>典型的 <code>PEFT</code> 方法有什么联系？</li>
+<li>典型的 <code>PEFT</code> 方法中是哪些关键模块在起作用？</li>
+<li>能否对这些关键模块进行排列组合，找出更有用的 <code>PEFT</code> 方法？</li>
+</ul>
+<h3 id="通用形式"><a href="#通用形式" class="headerlink" title="通用形式"></a>通用形式</h3><p>通过对 <code>Prefix Tuning</code> 的推导，得出了和 <code>Adapter Tuning</code> 以及 <code>LORA</code> 形式一致的形式。</p>
+<p>通过对<code>Prefix Tuning</code>的推导，得出了和<code>Adapter Tuning</code>以及<code>LORA</code>形式一致的形式。</p>
+<p><img src="https://pic1.zhimg.com/v2-55e884a24a54eae7acf05df441647078_b.jpg" alt></p>
+<p><img src="https://pic1.zhimg.com/v2-6da87dc77ec8b7efd0913b80c981c588_b.jpg" alt></p>
+<p><img src="https://pic2.zhimg.com/v2-f9350f69d103feb441a9f81e1c2a8169_b.jpg" alt></p>
+<p>包括这几大要素：</p>
+<ul>
+<li>\triangle h 的形式</li>
+<li>嵌入 <code>Transformer</code> 结构的方式（分为 Parrell 和 Sequential 两种。Parallel 指的是在输入层嵌入，这样与原有结构可以并行计算；Sequential 指的是在输出层嵌入，相当于增加了网路的深度，与原有结构存在依赖关系）</li>
+<li>修改表示层（主要指对 attention 层的修改还是对 ffn 层的修改）</li>
+<li>组合方式。怎么与原有的参数组合，包括简单相加（Adapter）、门控式（<code>Prefix Tuning</code>）、缩放式（<code>LORA</code>）三种）</li>
+</ul>
+<p>根据这个统一的框架，还另外设计了三种变体 Parallel Adapter、Multi-head Parallel Adapter、Scaled Parallel Adapter。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/1902.00751.pdf">Parameter-Efficient Transfer Learning for NLP</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2101.00190.pdf">Prefix-Tuning: Optimizing Continuous Prompts for Generation</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2104.08691.pdf">The Power of Scale for Parameter-Efficient <code>Prompt Tuning</code></a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2106.10199.pdf">BitFit: Simple Parameter-efficient Fine-tuning for <code>Transformer</code>-based Masked Language-models</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2103.10385.pdf">GPT Understands, Too</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2110.04366.pdf">TOWARDS A UNIFIED VIEW OF PARAMETER-EFFICIENT TRANSFER LEARNING</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2110.07577.pdf">UNIPELT: A Unified Framework for Parameter-Efficient Language Model Tuning</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//kexue.fm/archives/9138">Ladder Side-Tuning：预训练模型的“过墙梯”</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2012.13255.pdf">INTRINSIC DIMENSIONALITY EXPLAINS THE EFFECTIVENESS OF LANGUAGE MODEL FINE-TUNING</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//blog.csdn.net/qq_36426650/article/details/120607050">Prompt-Tuning——深度解读一种新的微调范式</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//kexue.fm/archives/8295"><code>P-Tuning</code>：自动构建模版，释放语言模型潜能</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2110.07602.pdf"><code><code>P-Tuning</code> v2&lt;/code&gt;: <code>Prompt Tuning</code> Can Be Comparable to Fine-tuning Universally Across Scales and Tasks</code></a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//aclanthology.org/2022.acl-short.8.pdf">https://aclanthology.org/2022.acl-short.8.pdf</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2110.07602.pdf">https://arxiv.org/pdf/2110.07602.pdf</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//www.yuque.com/meta95/hmc3l4/ozgy13dx4akv7v17%3FsingleDoc%23">https://www.yuque.com/meta95/hmc3l4/ozgy13dx4akv7v17?singleDoc#</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/625896377">无数据不智能：大模型训练之微调篇</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2303.10512.pdf">https://arxiv.org/pdf/2303.10512.pdf</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//github.com/huggingface/&lt;code&gt;PEFT&lt;/code">GitHub - huggingface/<code>PEFT</code>: <code>PEFT</code>: State-of-the-art Parameter-Efficient Fine-Tuning.</a></li>
+<li><a href="https://link.zhihu.com/?target=https%3A//arxiv.org/pdf/2110.04366.pdf">https://arxiv.org/pdf/2110.04366.pdf</a></li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://michealxie94.github.io">michealxie94</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://michealxie94.github.io/post/nlp004.html">https://michealxie94.github.io/post/nlp004.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://michealxie94.github.io" target="_blank">michealxie94</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="wechat,weibo,qq,qzone,douban,facebook,twitter"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/post/nlp003.html" title="003【LLM】从零开始训练大模型-知乎-何枝"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">003【LLM】从零开始训练大模型-知乎-何枝</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">michealxie94</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">38</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/michealxie94"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/michealxie94" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:michealxie94@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a><a class="social-icon" href="https://www.zhihu.com/" target="_blank" title="Zhihu"><i class="fab fa-zhihu" style="color: #0c5fed;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">2023 不负韶华 ！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BD%AC%E8%BD%BD"><span class="toc-number">1.</span> <span class="toc-text">转载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%A8%80"><span class="toc-number">3.</span> <span class="toc-text">引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Adapter-Tuning"><span class="toc-number">4.</span> <span class="toc-text">Adapter Tuning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Prefix-Tuning"><span class="toc-number">5.</span> <span class="toc-text">Prefix Tuning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Prompt-Tuning"><span class="toc-number">6.</span> <span class="toc-text">Prompt Tuning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#P-Tuning-v1"><span class="toc-number">7.</span> <span class="toc-text">P-Tuning v1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8EPrefix-Tuning%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">7.1.</span> <span class="toc-text">与Prefix-Tuning的区别</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#P-Tuning-v2-lt-code-gt"><span class="toc-number">8.</span> <span class="toc-text">P-Tuning v2&lt;&#x2F;code&gt;</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E7%BB%93%E6%9E%84"><span class="toc-number">8.1.</span> <span class="toc-text">主要结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%A0%E4%B8%AA%E5%85%B3%E9%94%AE%E8%AE%BE%E8%AE%A1%E5%9B%A0%E7%B4%A0"><span class="toc-number">8.2.</span> <span class="toc-text">几个关键设计因素</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="toc-number">8.3.</span> <span class="toc-text">实验结果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AdaLORA"><span class="toc-number">9.</span> <span class="toc-text">AdaLORA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Towards-a-Unified-View-of-PETL"><span class="toc-number">10.</span> <span class="toc-text">Towards a Unified View of PETL</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E7%94%A8%E5%BD%A2%E5%BC%8F"><span class="toc-number">10.1.</span> <span class="toc-text">通用形式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">11.</span> <span class="toc-text">参考</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/nlp004.html" title="004 大模型微调总结-知乎-绝密伏击">004 大模型微调总结-知乎-绝密伏击</a><time datetime="2023-07-14T13:17:52.000Z" title="发表于 2023-07-14 21:17:52">2023-07-14</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/nlp003.html" title="003【LLM】从零开始训练大模型-知乎-何枝">003【LLM】从零开始训练大模型-知乎-何枝</a><time datetime="2023-07-12T17:36:06.000Z" title="发表于 2023-07-13 01:36:06">2023-07-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LC931.html" title="LC931. 下降路径最小和">LC931. 下降路径最小和</a><time datetime="2023-07-12T17:18:28.000Z" title="发表于 2023-07-13 01:18:28">2023-07-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/d2b8e29c.html" title="Hexo Blog实用工具">Hexo Blog实用工具</a><time datetime="2023-07-12T16:33:08.000Z" title="发表于 2023-07-13 00:33:08">2023-07-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/nlp002.html" title="002 大模型LLM-微调经验分享&amp;总结-知乎-刘聪NLP">002 大模型LLM-微调经验分享&amp;总结-知乎-刘聪NLP</a><time datetime="2023-07-12T09:05:53.000Z" title="发表于 2023-07-12 17:05:53">2023-07-12</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By michealxie94</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(()=>{
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://michealxie94.zeabur.app/',
+      region: '',
+      onCommentLoaded: function () {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+  }
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://michealxie94.zeabur.app/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(function (res) {
+      countELement.textContent = res[0].count
+    }).catch(function (err) {
+      console.error(err);
+    });
+  }
+
+  const runFn = () => {
+    init()
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') {
+      setTimeout(runFn,0)
+      return
+    } 
+    getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(runFn)
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = () => {
+      loadTwikoo()
+    }
+  }
+})()</script></div><script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script><script src="/js/weather.js"></script><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div class="no-result" id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
