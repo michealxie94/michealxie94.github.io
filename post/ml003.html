@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ML003 warnings和bug解决方案 | michealxie94</title><meta name="author" content="michealxie94"><meta name="copyright" content="michealxie94"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="skleran中忽略FutureWarning警告信息 (2023.07.25)难度：easy12import warningswarnings.filterwarnings(&quot;ignore&quot;)忽略FutureWarning警告信息">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>ML003 warnings和bug解决方案 | michealxie94</title><meta name="author" content="michealxie94"><meta name="copyright" content="michealxie94"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="skleran中忽略FutureWarning警告信息 (2023.07.25)难度：easy12import warningswarnings.filterwarnings(&quot;ignore&quot;)忽略FutureWarning警告信息 命令行调用python出现编码错误：UnicodeDecodeError: ‘gbk‘ codec can‘t decode byte 0x9a">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ML003 warnings和bug解决方案">
 <meta property="og:url" content="https://michealxie94.github.io/post/ml003.html">
 <meta property="og:site_name" content="michealxie94">
-<meta property="og:description" content="skleran中忽略FutureWarning警告信息 (2023.07.25)难度：easy12import warningswarnings.filterwarnings(&quot;ignore&quot;)忽略FutureWarning警告信息">
+<meta property="og:description" content="skleran中忽略FutureWarning警告信息 (2023.07.25)难度：easy12import warningswarnings.filterwarnings(&quot;ignore&quot;)忽略FutureWarning警告信息 命令行调用python出现编码错误：UnicodeDecodeError: ‘gbk‘ codec can‘t decode byte 0x9a">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://michealxie94.github.io/img/avatar.jpg">
 <meta property="article:published_time" content="2023-07-25T04:21:28.000Z">
-<meta property="article:modified_time" content="2023-07-25T04:24:27.000Z">
+<meta property="article:modified_time" content="2023-08-12T12:54:53.753Z">
 <meta property="article:author" content="michealxie94">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://michealxie94.github.io/img/avatar.jpg"><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="https://michealxie94.github.io/post/ml003.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
@@ -57,7 +57,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2023-07-25 12:24:27'
+  postUpdate: '2023-08-12 20:54:53'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -186,8 +186,220 @@
     document.addEventListener('pjax:send', () => { preloader.initLoading() })
     document.addEventListener('pjax:complete', () => { preloader.endLoading() })
   }
-})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">43</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">61</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/your_name.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="michealxie94"><span class="site-name">michealxie94</span></a></span><div id="he-plugin-simple"></div><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">ML003 warnings和bug解决方案</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-07-25T04:21:28.000Z" title="发表于 2023-07-25 12:21:28">2023-07-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-07-25T04:24:27.000Z" title="更新于 2023-07-25 12:24:27">2023-07-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/ML/">ML</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">26</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>1分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="ML003 warnings和bug解决方案"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="skleran中忽略FutureWarning警告信息-2023-07-25"><a href="#skleran中忽略FutureWarning警告信息-2023-07-25" class="headerlink" title="skleran中忽略FutureWarning警告信息 (2023.07.25)"></a><code>skleran</code>中忽略<code>FutureWarning</code>警告信息 (2023.07.25)</h2><p>难度：<code>easy</code><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> warnings</span><br><span class="line">warnings.filterwarnings(<span class="string">&quot;ignore&quot;</span>)</span><br></pre></td></tr></table></figure><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/huoyongliang/article/details/83145913">忽略FutureWarning警告信息</a></p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://michealxie94.github.io">michealxie94</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://michealxie94.github.io/post/ml003.html">https://michealxie94.github.io/post/ml003.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://michealxie94.github.io" target="_blank">michealxie94</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="wechat,weibo,qq,qzone,douban,facebook,twitter"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/LC2921.html" title="LC2921. 统计范围内的步进数字数目"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">LC2921. 统计范围内的步进数字数目</div></div></a></div><div class="next-post pull-right"><a href="/post/LC2208.html" title="LC2208. 将数组和减半的最少操作次数"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">LC2208. 将数组和减半的最少操作次数</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">michealxie94</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">43</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">61</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/michealxie94"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/michealxie94" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:michealxie94@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a><a class="social-icon" href="https://www.zhihu.com/" target="_blank" title="Zhihu"><i class="fab fa-zhihu" style="color: #0c5fed;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">2023 不负韶华 ！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#skleran%E4%B8%AD%E5%BF%BD%E7%95%A5FutureWarning%E8%AD%A6%E5%91%8A%E4%BF%A1%E6%81%AF-2023-07-25"><span class="toc-number">1.</span> <span class="toc-text">skleran中忽略FutureWarning警告信息 (2023.07.25)</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LC2811.html" title="LC2811. 判断是否能拆分数组">LC2811. 判断是否能拆分数组</a><time datetime="2023-08-07T08:58:55.000Z" title="发表于 2023-08-07 16:58:55">2023-08-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LC344.html" title="LC344. 反转字符串">LC344. 反转字符串</a><time datetime="2023-08-07T07:13:18.000Z" title="发表于 2023-08-07 15:13:18">2023-08-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LC21.html" title="LC21. 合并两个有序链表">LC21. 合并两个有序链表</a><time datetime="2023-08-06T15:51:34.000Z" title="发表于 2023-08-06 23:51:34">2023-08-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LC24.html" title="LC24. 两两交换链表中的节点">LC24. 两两交换链表中的节点</a><time datetime="2023-08-06T15:51:34.000Z" title="发表于 2023-08-06 23:51:34">2023-08-06</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/math01.html" title="高等数学">高等数学</a><time datetime="2023-08-01T16:43:53.000Z" title="发表于 2023-08-02 00:43:53">2023-08-02</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By michealxie94</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(()=>{
+})()</script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">45</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">61</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/your_name.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="michealxie94"><span class="site-name">michealxie94</span></a></span><div id="he-plugin-simple"></div><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">ML003 warnings和bug解决方案</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-07-25T04:21:28.000Z" title="发表于 2023-07-25 12:21:28">2023-07-25</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-08-12T12:54:53.753Z" title="更新于 2023-08-12 20:54:53">2023-08-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/ML/">ML</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">709</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>3分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="ML003 warnings和bug解决方案"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="skleran中忽略FutureWarning警告信息-2023-07-25"><a href="#skleran中忽略FutureWarning警告信息-2023-07-25" class="headerlink" title="skleran中忽略FutureWarning警告信息 (2023.07.25)"></a><code>skleran</code>中忽略<code>FutureWarning</code>警告信息 (2023.07.25)</h2><p>难度：<code>easy</code><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> warnings</span><br><span class="line">warnings.filterwarnings(<span class="string">&quot;ignore&quot;</span>)</span><br></pre></td></tr></table></figure><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/huoyongliang/article/details/83145913">忽略FutureWarning警告信息</a></p>
+<h2 id="命令行调用python出现编码错误：UnicodeDecodeError-‘gbk‘-codec-can‘t-decode-byte-0x9a-in-position-811-2023-08-12"><a href="#命令行调用python出现编码错误：UnicodeDecodeError-‘gbk‘-codec-can‘t-decode-byte-0x9a-in-position-811-2023-08-12" class="headerlink" title="命令行调用python出现编码错误：UnicodeDecodeError: ‘gbk‘ codec can‘t decode byte 0x9a in position 811(2023.08.12)"></a>命令行调用python出现编码错误：UnicodeDecodeError: ‘gbk‘ codec can‘t decode byte 0x9a in position 811(2023.08.12)</h2><p>难度：<code>easy</code><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># for line in open(filename, &#x27;r&#x27;):</span></span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> <span class="built_in">open</span>(filename, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>):</span><br></pre></td></tr></table></figure><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/j18233653274/article/details/107448595">命令行调用python出现编码错误：UnicodeDecodeError: ‘gbk‘ codec can‘t decode byte 0x9a in position 140 完美解决！</a></p>
+<h2 id="安装cuda和cudnn-并验证-2023-08-12"><a href="#安装cuda和cudnn-并验证-2023-08-12" class="headerlink" title="安装cuda和cudnn,并验证(2023.08.12)"></a>安装cuda和cudnn,并验证(2023.08.12)</h2><p>难度：<code>easy</code></p>
+<blockquote>
+<ul>
+<li>安装版本：</li>
+<li>cuda：11.2版本 cuda_11.2.0_460.89_win10.exe</li>
+<li>cudnn：8.9版本(&gt;=8.1即可) cudnn-windows-x86_64-8.9.4.25_cuda11-archive</li>
+<li>tensorflow-gpu：2.5.0</li>
+</ul>
+</blockquote>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">版本</th>
+<th style="text-align:center">Python 版本</th>
+<th style="text-align:center">编译器</th>
+<th style="text-align:center">构建工具</th>
+<th style="text-align:center">cuDNN</th>
+<th style="text-align:center">CUDA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">tensorflow_gpu-2.6.0</td>
+<td style="text-align:center">3.6-3.9</td>
+<td style="text-align:center">MSVC 2019</td>
+<td style="text-align:center">Bazel 3.7.2</td>
+<td style="text-align:center">8.1</td>
+<td style="text-align:center">11.2</td>
+</tr>
+<tr>
+<td style="text-align:center"><mark>tensorflow_gpu-2.5.0</mark></td>
+<td style="text-align:center"><mark>3.6-3.9</mark></td>
+<td style="text-align:center"><mark>MSVC 2019</mark></td>
+<td style="text-align:center"><mark>Bazel 3.7.2</mark></td>
+<td style="text-align:center"><mark>8.1</mark></td>
+<td style="text-align:center"><mark>11.2</mark></td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-2.4.0</td>
+<td style="text-align:center">3.6-3.8</td>
+<td style="text-align:center">MSVC 2019</td>
+<td style="text-align:center">Bazel 3.1.0</td>
+<td style="text-align:center">8.0</td>
+<td style="text-align:center">11.0</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-2.3.0</td>
+<td style="text-align:center">3.5-3.8</td>
+<td style="text-align:center">MSVC 2019</td>
+<td style="text-align:center">Bazel 3.1.0</td>
+<td style="text-align:center">7.6</td>
+<td style="text-align:center">10.1</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-2.2.0</td>
+<td style="text-align:center">3.5-3.8</td>
+<td style="text-align:center">MSVC 2019</td>
+<td style="text-align:center">Bazel 2.0.0</td>
+<td style="text-align:center">7.6</td>
+<td style="text-align:center">10.1</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-2.1.0</td>
+<td style="text-align:center">3.5-3.7</td>
+<td style="text-align:center">MSVC 2019</td>
+<td style="text-align:center">Bazel 0.27.1-0.29.1</td>
+<td style="text-align:center">7.6</td>
+<td style="text-align:center">10.1</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-2.0.0</td>
+<td style="text-align:center">3.5-3.7</td>
+<td style="text-align:center">MSVC 2017</td>
+<td style="text-align:center">Bazel 0.26.1</td>
+<td style="text-align:center">7.4</td>
+<td style="text-align:center">10</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.15.0</td>
+<td style="text-align:center">3.5-3.7</td>
+<td style="text-align:center">MSVC 2017</td>
+<td style="text-align:center">Bazel 0.26.1</td>
+<td style="text-align:center">7.4</td>
+<td style="text-align:center">10</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.14.0</td>
+<td style="text-align:center">3.5-3.7</td>
+<td style="text-align:center">MSVC 2017</td>
+<td style="text-align:center">Bazel 0.24.1-0.25.2</td>
+<td style="text-align:center">7.4</td>
+<td style="text-align:center">10</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.13.0</td>
+<td style="text-align:center">3.5-3.7</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Bazel 0.19.0-0.21.0</td>
+<td style="text-align:center">7.4</td>
+<td style="text-align:center">10</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.12.0</td>
+<td style="text-align:center">3.5-3.6</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Bazel 0.15.0</td>
+<td style="text-align:center">7.2</td>
+<td style="text-align:center">9.0</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.11.0</td>
+<td style="text-align:center">3.5-3.6</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Bazel 0.15.0</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">9</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.10.0</td>
+<td style="text-align:center">3.5-3.6</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Cmake v3.6.3</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">9</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.9.0</td>
+<td style="text-align:center">3.5-3.6</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Cmake v3.6.3</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">9</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.8.0</td>
+<td style="text-align:center">3.5-3.6</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Cmake v3.6.3</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">9</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.7.0</td>
+<td style="text-align:center">3.5-3.6</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Cmake v3.6.3</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">9</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.6.0</td>
+<td style="text-align:center">3.5-3.6</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Cmake v3.6.3</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">9</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.5.0</td>
+<td style="text-align:center">3.5-3.6</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Cmake v3.6.3</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">9</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.4.0</td>
+<td style="text-align:center">3.5-3.6</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Cmake v3.6.3</td>
+<td style="text-align:center">6</td>
+<td style="text-align:center">8</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.3.0</td>
+<td style="text-align:center">3.5-3.6</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Cmake v3.6.3</td>
+<td style="text-align:center">6</td>
+<td style="text-align:center">8</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.2.0</td>
+<td style="text-align:center">3.5-3.6</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Cmake v3.6.3</td>
+<td style="text-align:center">5.1</td>
+<td style="text-align:center">8</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.1.0</td>
+<td style="text-align:center">3.5</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Cmake v3.6.3</td>
+<td style="text-align:center">5.1</td>
+<td style="text-align:center">8</td>
+</tr>
+<tr>
+<td style="text-align:center">tensorflow_gpu-1.0.0</td>
+<td style="text-align:center">3.5</td>
+<td style="text-align:center">MSVC 2015 update 3</td>
+<td style="text-align:center">Cmake v3.6.3</td>
+<td style="text-align:center">5.1</td>
+<td style="text-align:center">8</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><a target="_blank" rel="noopener" href="https://tensorflow.google.cn/?hl=zh-cn">tensorflow中文社区</a><br><a target="_blank" rel="noopener" href="https://tensorflow.google.cn/install/source_windows?hl=zh-cn#tested_build_configurations">tensorflow、cuda、cudnn版本对应关系</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/349012526">(详细版本)window10安装CUDA11.0及相应的CUDNN</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/JuzerTech/article/details/119053829">(粗略版本)机器学习开发环境安装 Tensorflow 2.5.0 + Cuda 11.2 + cudnn 8.1 (windows)</a><br><a target="_blank" rel="noopener" href="https://developer.nvidia.com/rdp/cudnn-download">cudnn下载(需要注册会员)</a><br><a target="_blank" rel="noopener" href="https://developer.nvidia.com/rdp/cudnn-archive">cudnn历史下载(需要注册会员)</a><br><a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-11.2.0-download-archive?target_os=Windows&amp;target_arch=x86_64&amp;target_version=10&amp;target_type=exelocal">cuda 11.2</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44494790/article/details/110254621">Could not load dynamic library ‘cublas64_10.dll‘； dlerror: cublas64_10.dll not found或者缺少DLL问题</a></p>
+<h2 id="Could-not-load-dynamic-library-cudart64-101-dll-2023-08-12"><a href="#Could-not-load-dynamic-library-cudart64-101-dll-2023-08-12" class="headerlink" title="Could not load dynamic library cudart64_101.dll(2023.08.12)"></a>Could not load dynamic library cudart64_101.dll(2023.08.12)</h2><p>难度：<code>easy</code><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40089560/article/details/117697537">@轻松解决问题Could not load dynamic library cudart64_101.dll</a><br><a target="_blank" rel="noopener" href="https://cn.dll-files.com/download/1d7955354884a9058e89bb8ea34415c9/cudart64_101.dll.html?c=OGxXS0VLdmdQTWdGaC8xZ3RhSzhsUT09">@下载 CUDART64_101.DLL</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://michealxie94.github.io">michealxie94</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://michealxie94.github.io/post/ml003.html">https://michealxie94.github.io/post/ml003.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://michealxie94.github.io" target="_blank">michealxie94</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="/img/avatar.jpg" data-sites="wechat,weibo,qq,qzone,douban,facebook,twitter"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/LC2921.html" title="LC2921. 统计范围内的步进数字数目"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">LC2921. 统计范围内的步进数字数目</div></div></a></div><div class="next-post pull-right"><a href="/post/LC2208.html" title="LC2208. 将数组和减半的最少操作次数"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">LC2208. 将数组和减半的最少操作次数</div></div></a></div></nav><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">michealxie94</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">45</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">61</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">14</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/michealxie94"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/michealxie94" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:michealxie94@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a><a class="social-icon" href="https://www.zhihu.com/" target="_blank" title="Zhihu"><i class="fab fa-zhihu" style="color: #0c5fed;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">2023 不负韶华 ！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#skleran%E4%B8%AD%E5%BF%BD%E7%95%A5FutureWarning%E8%AD%A6%E5%91%8A%E4%BF%A1%E6%81%AF-2023-07-25"><span class="toc-number">1.</span> <span class="toc-text">skleran中忽略FutureWarning警告信息 (2023.07.25)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%B0%83%E7%94%A8python%E5%87%BA%E7%8E%B0%E7%BC%96%E7%A0%81%E9%94%99%E8%AF%AF%EF%BC%9AUnicodeDecodeError-%E2%80%98gbk%E2%80%98-codec-can%E2%80%98t-decode-byte-0x9a-in-position-811-2023-08-12"><span class="toc-number">2.</span> <span class="toc-text">命令行调用python出现编码错误：UnicodeDecodeError: ‘gbk‘ codec can‘t decode byte 0x9a in position 811(2023.08.12)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85cuda%E5%92%8Ccudnn-%E5%B9%B6%E9%AA%8C%E8%AF%81-2023-08-12"><span class="toc-number">3.</span> <span class="toc-text">安装cuda和cudnn,并验证(2023.08.12)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Could-not-load-dynamic-library-cudart64-101-dll-2023-08-12"><span class="toc-number">4.</span> <span class="toc-text">Could not load dynamic library cudart64_101.dll(2023.08.12)</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/tensorflow.html" title="tensorflow指北">tensorflow指北</a><time datetime="2023-08-12T10:08:14.000Z" title="发表于 2023-08-12 18:08:14">2023-08-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/nlp008.html" title="008 Transformer入门到精通">008 Transformer入门到精通</a><time datetime="2023-08-12T05:10:16.000Z" title="发表于 2023-08-12 13:10:16">2023-08-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LC2811.html" title="LC2811. 判断是否能拆分数组">LC2811. 判断是否能拆分数组</a><time datetime="2023-08-07T08:58:55.000Z" title="发表于 2023-08-07 16:58:55">2023-08-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LC344.html" title="LC344. 反转字符串">LC344. 反转字符串</a><time datetime="2023-08-07T07:13:18.000Z" title="发表于 2023-08-07 15:13:18">2023-08-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/LC21.html" title="LC21. 合并两个有序链表">LC21. 合并两个有序链表</a><time datetime="2023-08-06T15:51:34.000Z" title="发表于 2023-08-06 23:51:34">2023-08-06</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By michealxie94</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(()=>{
   const init = () => {
     twikoo.init(Object.assign({
       el: '#twikoo-wrap',
